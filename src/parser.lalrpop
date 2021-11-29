@@ -1,0 +1,28 @@
+use std::str::FromStr;
+use crate::ast::{Prog, Stmt, Expr};
+
+grammar;
+
+pub Prog: Prog = {
+    <stmts: Stmt* > => Prog::Body { stmts },
+}
+
+pub Stmt: Stmt = {
+    <expr:Expr> ";" => Stmt::Expr(expr),
+}
+
+pub Expr: Expr = {
+    <v:IntegerLiteral> => Expr::Int(v),
+}
+
+IntegerLiteral: i32 = <s:r"[0-9]+"> => i32::from_str(s).unwrap();
+StringLiteral: String = {
+    <s:r"'[^']*'"> => s.trim_matches('\'').to_string(),
+};
+
+
+match {
+    r"\s" => {},
+    r"#[\n\r]*[\n\r]*" => {},
+    _,
+}
