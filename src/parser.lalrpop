@@ -21,6 +21,8 @@ pub Operator: Operator = {
     "+" => Operator::Add,
     "-" => Operator::Sub,
     "/" => Operator::Div,
+    "||" => Operator::Or,
+    "&&" => Operator::And,
 }
 
 pub Expr_: Expr = {

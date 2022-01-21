@@ -62,9 +62,28 @@ fn expr_eval(expr: &Expr, env: &mut Environtment) -> Result<Value, String> {
                 Operator::Add => Ok(lhs + rhs),
                 Operator::Sub => Ok(lhs - rhs),
                 Operator::Div => Ok(lhs / rhs),
-                _ => unimplemented!(),
-                // Operator::Or => Ok(lhs || rhs),
-                // Operator::And => Oklhs && rhs),
+                Operator::Or => {
+                    if let Value::Bool(a) = lhs {
+                        if let Value::Bool(b) = rhs {
+                            Ok(Value::Bool(a || b))
+                        } else {
+                            Err(format!("Second operand must be boolean"))
+                        }
+                    } else {
+                        Err(format!("Only boolean types allowed in Or operations"))
+                    }
+                }
+                Operator::And => {
+                    if let Value::Bool(a) = lhs {
+                        if let Value::Bool(b) = rhs {
+                            Ok(Value::Bool(a && b))
+                        } else {
+                            Err(format!("Second operand must be boolean"))
+                        }
+                    } else {
+                        Err(format!("Only boolean types allowed in Or operations"))
+                    }
+                }
             }
         }
         Expr::Int(v) => Ok(Value::Int(*v)),
@@ -108,12 +127,10 @@ pub fn std_print(vals: Vec<Value>) -> Result<Value, String> {
 }
 
 fn main() {
+    let input = std::fs::read_to_string("hello.mrt").expect("Cannot read source file");
     let mut env = Environtment::default();
     env.define("println".to_string(), Value::Function(std_print));
-    let source = parser::ProgParser::new()
-        // .parse("x = 5; print(x); print(12);")
-        .parse("println(1 + 3) println(1 - 99); let x = 5; println(x); let a = x; println(a); ")
-        .unwrap();
+    let source = parser::ProgParser::new().parse(&input).unwrap();
     println!("{:?}", eval(&source, &mut env));
 }
 
