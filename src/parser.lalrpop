@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{Prog, Stmt, Expr, Call};
+use crate::ast::{Prog, Operator, Stmt, Expr, Call};
 
 grammar;
 
@@ -8,8 +8,19 @@ pub Prog: Prog = {
 }
 
 pub Stmt: Stmt = {
-    <expr:Expr> ";" => Stmt::Expr(expr),
-    <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
+    <expr:Expr> ";"? => Stmt::Expr(expr),
+    "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
+}
+
+pub Expr: Expr = {
+    <lhs: Expr> <op:Operator> <rhs:Expr_> => Expr::Binary(Box::new( lhs ), op , Box::new( rhs )),
+    <expr: Expr_> => expr
+}
+
+pub Operator: Operator = {
+    "+" => Operator::Add,
+    "-" => Operator::Sub,
+    "/" => Operator::Div,
 }
 
 pub Expr_: Expr = {
@@ -19,10 +30,6 @@ pub Expr_: Expr = {
     <name:Ident> => Expr::Var(name),
     "true" => Expr::Bool(true),
     "false" => Expr::Bool(false),
-}
-pub Expr: Expr = {
-    <lhs: Expr> "<" <rhs:Expr_> => Expr::Binary(Box::new( lhs ), Box::new( rhs )),
-    <expr: Expr_> => expr
 }
 
 Ident: String = {

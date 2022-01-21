@@ -54,11 +54,18 @@ fn stmt_eval(expr: &Stmt, env: &mut Environtment) -> Result<Value, String> {
 
 fn expr_eval(expr: &Expr, env: &mut Environtment) -> Result<Value, String> {
     match expr {
-        Expr::Binary(lhs, rhs) => {
-            let lhs = expr_eval(lhs, env);
-            let rhs = expr_eval(rhs, env);
+        Expr::Binary(lhs, op, rhs) => {
+            let lhs = expr_eval(lhs, env)?;
+            let rhs = expr_eval(rhs, env)?;
 
-            Ok(Value::Bool(lhs < rhs))
+            match op {
+                Operator::Add => Ok(lhs + rhs),
+                Operator::Sub => Ok(lhs - rhs),
+                Operator::Div => Ok(lhs / rhs),
+                _ => unimplemented!(),
+                // Operator::Or => Ok(lhs || rhs),
+                // Operator::And => Oklhs && rhs),
+            }
         }
         Expr::Int(v) => Ok(Value::Int(*v)),
         Expr::Bool(b) => Ok(Value::Bool(*b)),
@@ -102,9 +109,10 @@ pub fn std_print(vals: Vec<Value>) -> Result<Value, String> {
 
 fn main() {
     let mut env = Environtment::default();
-    env.define("print".to_string(), Value::Function(std_print));
+    env.define("println".to_string(), Value::Function(std_print));
     let source = parser::ProgParser::new()
-        .parse("x = 5; print(x); print(12);")
+        // .parse("x = 5; print(x); print(12);")
+        .parse("println(1 + 3) println(1 - 99); let x = 5; println(x); let a = x; println(a); ")
         .unwrap();
     println!("{:?}", eval(&source, &mut env));
 }

@@ -15,7 +15,7 @@ pub enum Expr {
     Bool(bool),
     Str(String),
     Var(String),
-    Binary(Box<Expr>, Box<Expr>),
+    Binary(Box<Expr>, Operator, Box<Expr>),
     Call(Call),
 }
 
@@ -23,6 +23,15 @@ pub enum Expr {
 pub struct Call {
     pub func: String,
     pub args: Vec<Box<Expr>>,
+}
+
+#[derive(Clone, Debug)]
+pub enum Operator {
+    Add,
+    Sub,
+    Div,
+    Or,
+    And,
 }
 
 #[derive(Clone, Debug, std::cmp::PartialEq, PartialOrd)]
@@ -42,6 +51,45 @@ impl std::fmt::Display for Value {
             Self::Nil => write!(f, "Nil"),
             Self::Str(s) => write!(f, "{}", *s),
             _ => unimplemented!(),
+        }
+    }
+}
+
+impl std::ops::Sub for Value {
+    type Output = Self;
+    fn sub(self, other: Value) -> Self {
+        match self {
+            Self::Int(x) => match other {
+                Value::Int(y) => Value::Int(x - y),
+                _ => unreachable!(),
+            },
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::ops::Div for Value {
+    type Output = Self;
+    fn div(self, other: Value) -> Self {
+        match self {
+            Self::Int(x) => match other {
+                Value::Int(y) => Value::Int(x / y),
+                _ => unreachable!(),
+            },
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::ops::Add for Value {
+    type Output = Self;
+    fn add(self, other: Value) -> Self {
+        match self {
+            Self::Int(x) => match other {
+                Value::Int(y) => Value::Int(x + y),
+                _ => unreachable!(),
+            },
+            _ => unreachable!(),
         }
     }
 }
