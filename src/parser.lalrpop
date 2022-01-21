@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{Prog, Stmt, Expr};
+use crate::ast::{Prog, Stmt, Expr, Call};
 
 grammar;
 
@@ -9,13 +9,28 @@ pub Prog: Prog = {
 
 pub Stmt: Stmt = {
     <expr:Expr> ";" => Stmt::Expr(expr),
+    <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
 }
 
-pub Expr: Expr = {
+pub Expr_: Expr = {
     <v:IntegerLiteral> => Expr::Int(v),
+    <s:StringLiteral> => Expr::Str(s),
+    <f:Ident> "(" <args:Expr> ")" => Expr::Call(Call{func: f, args: vec![Box::new(args)]}),
+    <name:Ident> => Expr::Var(name),
+    "true" => Expr::Bool(true),
+    "false" => Expr::Bool(false),
 }
+pub Expr: Expr = {
+    <lhs: Expr> "<" <rhs:Expr_> => Expr::Binary(Box::new( lhs ), Box::new( rhs )),
+    <expr: Expr_> => expr
+}
+
+Ident: String = {
+    <s:r"[_a-zA-Z][_a-zA-Z0-9]*"> => s.to_string(),
+};
 
 IntegerLiteral: i32 = <s:r"[0-9]+"> => i32::from_str(s).unwrap();
+
 StringLiteral: String = {
     <s:r"'[^']*'"> => s.trim_matches('\'').to_string(),
 };
