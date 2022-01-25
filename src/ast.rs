@@ -1,12 +1,15 @@
 #[derive(Clone, Debug)]
 pub enum Prog {
-    Body { stmts: Vec<Stmt> },
+    Body { stmts: Block },
 }
+
+pub type Block = Vec<Stmt>;
 
 #[derive(Clone, Debug)]
 pub enum Stmt {
     Expr(Expr),
     Assign(String, Expr),
+    IfStatement(Expr, Vec<Stmt>),
 }
 
 #[derive(Clone, Debug)]

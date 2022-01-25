@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{Prog, Operator, Stmt, Expr, Call};
+use crate::ast::*;
 
 grammar;
 
@@ -10,6 +10,10 @@ pub Prog: Prog = {
 pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
+    "if" <cond:Expr> "{" <stmts:Stmt*> "}" => Stmt::IfStatement(cond, stmts)
+}
+pub Block: Vec<Stmt> = {
+    "{" <stmts:Stmt*> "}" => stmts,
 }
 
 pub Expr: Expr = {
@@ -44,9 +48,8 @@ StringLiteral: String = {
     <s:r"'[^']*'"> => s.trim_matches('\'').to_string(),
 };
 
-
 match {
-    r"\s" => {},
-    r"#[\n\r]*[\n\r]*" => {},
+    r"\s*" => {},
+    r"#[^\n\r]*[\n\r]*" => {},
     _,
 }

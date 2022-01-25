@@ -1,6 +1,7 @@
+pub mod environment;
+use environment::*;
 pub mod ast;
 use ast::*;
-use std::collections::HashMap;
 
 #[macro_use]
 extern crate lalrpop_util;
@@ -11,23 +12,6 @@ lalrpop_mod!(
     #[allow(dead_code)]
     parser
 );
-
-#[derive(Debug, Default)]
-pub struct Environtment {
-    pub vals: HashMap<String, Value>,
-    // pub enclosing: Option<Rc<RefCell<Environment>>>,
-}
-
-impl Environtment {
-    pub fn define(&mut self, name: String, value: Value) -> Result<Value, String> {
-        self.vals.insert(name, value.clone());
-        Ok(value)
-    }
-
-    pub fn get_var(&mut self, name: String) -> Option<Value> {
-        self.vals.get(&name).map(|value| value.clone())
-    }
-}
 
 fn eval(program: &Prog, env: &mut Environtment) -> Result<(), String> {
     match program {
@@ -42,12 +26,30 @@ fn eval(program: &Prog, env: &mut Environtment) -> Result<(), String> {
     Ok(())
 }
 
+fn eval_block(stmts: Vec<Stmt>, env: &mut Environtment) -> Result<Value, String> {
+    let mut value = Value::Nil;
+    for stmt in stmts {
+        value = stmt_eval(&stmt, env)?;
+    }
+    Ok(value)
+}
+
 fn stmt_eval(expr: &Stmt, env: &mut Environtment) -> Result<Value, String> {
     match expr {
         Stmt::Expr(x) => expr_eval(x, env),
         Stmt::Assign(name, rhs) => match expr_eval(rhs, env) {
             Ok(v) => env.define(name.to_string(), v),
             Err(e) => return Err(e),
+        },
+        Stmt::IfStatement(cond, stmts) => match expr_eval(cond, env) {
+            Ok(b) => match b {
+                Value::Bool(true) => {
+                    return eval_block(stmts.to_vec(), env);
+                }
+                Value::Bool(false) => Ok(Value::Nil),
+                _ => unreachable!(),
+            },
+            Err(_) => Err(format!("Expression must be boolean")),
         },
     }
 }
