@@ -36,6 +36,9 @@ pub enum Operator {
     Div,
     Or,
     And,
+    GreaterThan,
+    LessThan,
+    EqTo,
 }
 
 #[derive(Clone, Debug, std::cmp::PartialEq, PartialOrd)]

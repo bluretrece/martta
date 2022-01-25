@@ -28,6 +28,9 @@ pub Operator: Operator = {
     "/" => Operator::Div,
     "||" => Operator::Or,
     "&&" => Operator::And,
+    "<" => Operator::LessThan,
+    ">" => Operator::GreaterThan,
+    "==" => Operator::EqTo,
 }
 
 pub Expr_: Expr = {
