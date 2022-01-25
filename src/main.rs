@@ -39,17 +39,23 @@ fn stmt_eval(expr: &Stmt, env: &mut Environtment) -> Result<Value, String> {
         Stmt::Expr(x) => expr_eval(x, env),
         Stmt::Assign(name, rhs) => match expr_eval(rhs, env) {
             Ok(v) => env.define(name.to_string(), v),
-            Err(e) => return Err(e),
+            Err(e) => Err(e),
         },
         Stmt::IfStatement(cond, stmts) => match expr_eval(cond, env) {
             Ok(b) => match b {
-                Value::Bool(true) => {
-                    return eval_block(stmts.to_vec(), env);
-                }
+                Value::Bool(true) => eval_block(stmts.to_vec(), env),
                 Value::Bool(false) => Ok(Value::Nil),
                 _ => unreachable!(),
             },
-            Err(_) => Err(format!("Expression must be boolean")),
+            Err(_) => Err("Expression must be boolean".to_string()),
+        },
+        Stmt::IfElse(cond, stmts, estmt) => match expr_eval(cond, env) {
+            Ok(b) => match b {
+                Value::Bool(true) => eval_block(stmts.to_vec(), env),
+                Value::Bool(false) => eval_block(estmt.to_vec(), env),
+                _ => unreachable!(),
+            },
+            Err(_) => Err("Expression must be boolean".to_string()),
         },
     }
 }

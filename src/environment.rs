@@ -14,6 +14,6 @@ impl Environtment {
     }
 
     pub fn get_var(&mut self, name: String) -> Option<Value> {
-        self.vals.get(&name).map(|value| value.clone())
+        self.vals.get(&name).cloned()
     }
 }

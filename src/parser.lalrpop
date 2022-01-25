@@ -10,7 +10,8 @@ pub Prog: Prog = {
 pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
-    "if" <cond:Expr> "{" <stmts:Stmt*> "}" => Stmt::IfStatement(cond, stmts)
+    "if" <cond:Expr> "{" <stmts:Stmt*> "}" => Stmt::IfStatement(cond, stmts),
+    "if" <cond:Expr> "{" <stmts:Stmt*> "}" "else"? "{" <estmts:Stmt*> "}" => Stmt::IfElse(cond, stmts, estmts)
 }
 pub Block: Vec<Stmt> = {
     "{" <stmts:Stmt*> "}" => stmts,

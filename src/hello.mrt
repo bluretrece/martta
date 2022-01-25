@@ -10,8 +10,11 @@ println(a);
 let b = false && false; 
 println(b);
 
-let c = 60;
 if false || false {
     println(99);
 }
-println(6);
+if false {
+    println(99);
+} else {
+    println(86);
+}

@@ -10,6 +10,7 @@ pub enum Stmt {
     Expr(Expr),
     Assign(String, Expr),
     IfStatement(Expr, Vec<Stmt>),
+    IfElse(Expr, Vec<Stmt>, Vec<Stmt>),
 }
 
 #[derive(Clone, Debug)]
