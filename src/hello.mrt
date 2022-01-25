@@ -1,0 +1,17 @@
+println(1 + 3) 
+println(1 - 99); 
+
+let x = 5; 
+println(x); 
+
+let a = x; 
+println(a); 
+
+let b = false && false; 
+println(b);
+
+let c = 60;
+if false || false {
+    println(99);
+}
+println(6);
