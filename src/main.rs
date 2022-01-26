@@ -1,7 +1,8 @@
 pub mod environment;
-use environment::*;
+pub use environment::*;
 pub mod ast;
 use ast::*;
+pub mod tests;
 
 #[macro_use]
 extern crate lalrpop_util;
@@ -13,20 +14,19 @@ lalrpop_mod!(
     parser
 );
 
-fn eval(program: &Prog, env: &mut Environtment) -> Result<(), String> {
+fn eval(program: &Prog, env: &mut Environment) -> Result<Value, String> {
+    let mut value = Value::Nil;
     match program {
         Prog::Body { stmts } => {
             for stmt in stmts {
-                if let Err(err) = stmt_eval(stmt, env) {
-                    return Err(err);
-                }
+                value = stmt_eval(&stmt, env)?;
             }
         }
     }
-    Ok(())
+    Ok(value)
 }
 
-fn eval_block(stmts: Vec<Stmt>, env: &mut Environtment) -> Result<Value, String> {
+fn eval_block(stmts: Vec<Stmt>, env: &mut Environment) -> Result<Value, String> {
     let mut value = Value::Nil;
     for stmt in stmts {
         value = stmt_eval(&stmt, env)?;
@@ -34,7 +34,7 @@ fn eval_block(stmts: Vec<Stmt>, env: &mut Environtment) -> Result<Value, String>
     Ok(value)
 }
 
-fn stmt_eval(expr: &Stmt, env: &mut Environtment) -> Result<Value, String> {
+fn stmt_eval(expr: &Stmt, env: &mut Environment) -> Result<Value, String> {
     match expr {
         Stmt::Expr(x) => expr_eval(x, env),
         Stmt::Assign(name, rhs) => match expr_eval(rhs, env) {
@@ -60,7 +60,7 @@ fn stmt_eval(expr: &Stmt, env: &mut Environtment) -> Result<Value, String> {
     }
 }
 
-fn expr_eval(expr: &Expr, env: &mut Environtment) -> Result<Value, String> {
+fn expr_eval(expr: &Expr, env: &mut Environment) -> Result<Value, String> {
     match expr {
         Expr::Binary(lhs, op, rhs) => {
             let lhs = expr_eval(lhs, env)?;
@@ -104,6 +104,7 @@ fn expr_eval(expr: &Expr, env: &mut Environtment) -> Result<Value, String> {
             Some(v) => Ok(v),
             None => Err(format!("'{}' is not defined", name)),
         },
+        Expr::Func(name, ftype) => Ok(Value::Int(88777777)),
         Expr::Call(Call {
             func: function,
             args,
@@ -132,30 +133,17 @@ fn expr_eval(expr: &Expr, env: &mut Environtment) -> Result<Value, String> {
 }
 
 pub fn std_print(vals: Vec<Value>) -> Result<Value, String> {
-    println!("{:?}", vals);
+    println!("{:?}", &vals);
 
-    Ok(Value::Nil)
+    Ok(vals[0].clone())
 }
 
 fn main() {
-    let input = std::fs::read_to_string("hello.mrt").expect("Cannot read source file");
-    let mut env = Environtment::default();
+    let mut env = Environment::default();
     env.define("println".to_string(), Value::Function(std_print))
         .unwrap();
+    let input = std::fs::read_to_string("hello.mrt").expect("Cannot read source file");
     let source = parser::ProgParser::new().parse(&input).unwrap();
-    println!("{:?}", eval(&source, &mut env));
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn basic_parsing() {
-        let mut env = HashMap::new();
-        let int_literal = "197;";
-        let source = parser::ProgParser::new().parse(int_literal).unwrap();
-        let res = eval(&source, &env);
-
-        assert_eq!(res, Ok(()));
-    }
+    let res = eval(&source, &mut env).unwrap();
+    println!("{}", res);
 }

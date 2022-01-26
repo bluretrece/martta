@@ -2,12 +2,12 @@ use crate::Value;
 use std::collections::HashMap;
 
 #[derive(Debug, Default)]
-pub struct Environtment {
+pub struct Environment {
     pub vals: HashMap<String, Value>,
     // pub enclosing: Option<Rc<RefCell<Environment>>>,
 }
 
-impl Environtment {
+impl Environment {
     pub fn define(&mut self, name: String, value: Value) -> Result<Value, String> {
         self.vals.insert(name, value.clone());
         Ok(value)

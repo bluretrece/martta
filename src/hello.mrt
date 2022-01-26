@@ -1,20 +1,12 @@
-println(1 + 3) 
-println(1 - 99); 
-
 let x = 5; 
-println(x); 
 
 let a = x; 
 println(a); 
 
-let b = false && false; 
-println(b);
-
-if false || false {
-    println(99);
-}
 if false {
     println(99);
 } else {
     println(86);
 }
+
+def foo(): string {}

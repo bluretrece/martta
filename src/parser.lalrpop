@@ -11,8 +11,9 @@ pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
     "if" <cond:Expr> "{" <stmts:Stmt*> "}" => Stmt::IfStatement(cond, stmts),
-    "if" <cond:Expr> "{" <stmts:Stmt*> "}" "else"? "{" <estmts:Stmt*> "}" => Stmt::IfElse(cond, stmts, estmts)
+    "if" <cond:Expr> "{" <stmts:Stmt*> "}" "else"? "{" <estmts:Stmt*> "}" => Stmt::IfElse(cond, stmts, estmts),
 }
+
 pub Block: Vec<Stmt> = {
     "{" <stmts:Stmt*> "}" => stmts,
 }
@@ -37,6 +38,7 @@ pub Expr_: Expr = {
     <v:IntegerLiteral> => Expr::Int(v),
     <s:StringLiteral> => Expr::Str(s),
     <f:Ident> "(" <args:Expr> ")" => Expr::Call(Call{func: f, args: vec![Box::new(args)]}),
+    "def" <i:Ident> "()" ":" <ftype:Ident> "{}" => Expr::Func(i, ftype),
     <name:Ident> => Expr::Var(name),
     "true" => Expr::Bool(true),
     "false" => Expr::Bool(false),

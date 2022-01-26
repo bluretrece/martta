@@ -21,6 +21,7 @@ pub enum Expr {
     Var(String),
     Binary(Box<Expr>, Operator, Box<Expr>),
     Call(Call),
+    Func(String, String),
 }
 
 #[derive(Clone, Debug)]
