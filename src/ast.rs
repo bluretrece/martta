@@ -1,6 +1,6 @@
 #[derive(Clone, Debug)]
 pub enum Prog {
-    Body { stmts: Block },
+    Body(Block),
 }
 
 pub type Block = Vec<Stmt>;
