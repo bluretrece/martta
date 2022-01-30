@@ -9,7 +9,9 @@ pub type Block = Vec<Stmt>;
 pub enum Stmt {
     Expr(Expr),
     Assign(String, Expr),
+    ReAssign(String, Operator, Expr),
     IfStatement(Expr, Vec<Stmt>),
+    While(Expr, Vec<Stmt>),
     IfElse(Expr, Vec<Stmt>, Vec<Stmt>),
 }
 
@@ -22,6 +24,7 @@ pub enum Expr {
     Binary(Box<Expr>, Operator, Box<Expr>),
     Call(Call),
     Func(String, String),
+    List(Vec<Expr>),
 }
 
 #[derive(Clone, Debug)]
@@ -40,6 +43,7 @@ pub enum Operator {
     GreaterThan,
     LessThan,
     EqTo,
+    SumTo,
 }
 
 #[derive(Clone, Debug, std::cmp::PartialEq, PartialOrd)]
@@ -47,6 +51,7 @@ pub enum Value {
     Int(i32),
     Bool(bool),
     Str(String),
+    List(Vec<Value>),
     Function(fn(Vec<Value>) -> Result<Value, String>),
     Nil,
 }
@@ -56,6 +61,17 @@ impl std::fmt::Display for Value {
         match self {
             Self::Int(x) => write!(f, "{}", *x),
             Self::Bool(b) => write!(f, "{}", *b),
+            Self::List(list) => {
+                let mut values = Vec::new();
+                for v in list {
+                    values.push(v);
+                }
+
+                for el in values.iter() {
+                    write!(f, "{} ", el);
+                }
+                Ok(())
+            }
             Self::Nil => write!(f, "Nil"),
             Self::Str(s) => write!(f, "{}", *s),
             _ => unimplemented!(),

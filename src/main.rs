@@ -26,7 +26,7 @@ fn main() {
     let mut env = Environment::default();
     env.define("println".to_string(), Value::Function(std_print))
         .unwrap();
-    let input = std::fs::read_to_string("hello.mrt").expect("Cannot read source file");
+    let input = std::fs::read_to_string("list.mrt").expect("Cannot read source file");
     let source = parser::ProgParser::new().parse(&input).unwrap();
     let res = eval(&source, &mut env).unwrap();
     println!("{}", res);

@@ -4,7 +4,7 @@ pub fn eval(program: &Prog, env: &mut Environment) -> Result<Value, String> {
     match program {
         Prog::Body(stmts) => {
             for stmt in stmts {
-                value = stmt_eval(&stmt, env)?;
+                value = stmt_eval(stmt, env)?;
             }
         }
     }
@@ -23,8 +23,31 @@ pub fn stmt_eval(expr: &Stmt, env: &mut Environment) -> Result<Value, String> {
     match expr {
         Stmt::Expr(x) => expr_eval(x, env),
         Stmt::Assign(name, rhs) => match expr_eval(rhs, env) {
-            Ok(v) => env.define(name.to_string(), v),
+            Ok(v) => {
+                env.define(name.to_string(), v);
+                Ok(Value::Nil)
+            }
             Err(e) => Err(e),
+        },
+        Stmt::ReAssign(_lhs, _op, _rhs) => {
+            unimplemented!();
+        }
+        Stmt::While(cond, stmts) => loop {
+            let conditional = match expr_eval(cond, env) {
+                Ok(b) => match b {
+                    Value::Bool(true) => true,
+                    Value::Bool(false) => false,
+                    _ => unimplemented!(),
+                },
+                Err(_) => unimplemented!(),
+            };
+
+            if !conditional {
+                break Ok(Value::Nil);
+            }
+            if let Err(e) = eval_block(stmts.to_vec(), env) {
+                return Err(e);
+            }
         },
         Stmt::IfStatement(cond, stmts) => match expr_eval(cond, env) {
             Ok(b) => match b {
@@ -43,6 +66,18 @@ pub fn stmt_eval(expr: &Stmt, env: &mut Environment) -> Result<Value, String> {
             Err(_) => Err("Expression must be boolean".to_string()),
         },
     }
+}
+pub fn expr_evals(exprs: &Vec<Expr>, env: &mut Environment) -> Result<Vec<Value>, String> {
+    let mut vals: Vec<Value> = Vec::new();
+
+    for expr in exprs {
+        match expr_eval(expr, env) {
+            Ok(v) => vals.push(v),
+            Err(e) => return Err(e),
+        }
+    }
+
+    Ok(vals)
 }
 
 pub fn expr_eval(expr: &Expr, env: &mut Environment) -> Result<Value, String> {
@@ -80,6 +115,7 @@ pub fn expr_eval(expr: &Expr, env: &mut Environment) -> Result<Value, String> {
                         Err("Only boolean types allowed in Or operations".to_string())
                     }
                 }
+                _ => unreachable!(),
             }
         }
         Expr::Int(v) => Ok(Value::Int(*v)),
@@ -90,6 +126,14 @@ pub fn expr_eval(expr: &Expr, env: &mut Environment) -> Result<Value, String> {
             None => Err(format!("'{}' is not defined", name)),
         },
         Expr::Func(name, ftype) => Ok(Value::Int(88777777)),
+        Expr::List(list) => {
+            let values = match expr_evals(list, env) {
+                Ok(v) => v,
+                Err(e) => return Err(e),
+            };
+
+            Ok(Value::List(values))
+        }
         Expr::Call(Call {
             func: function,
             args,

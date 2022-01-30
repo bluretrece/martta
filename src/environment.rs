@@ -8,9 +8,9 @@ pub struct Environment {
 }
 
 impl Environment {
-    pub fn define(&mut self, name: String, value: Value) -> Result<Value, String> {
-        self.vals.insert(name, value.clone());
-        Ok(value)
+    pub fn define(&mut self, name: String, value: Value) -> Result<(), String> {
+        self.vals.insert(name, value);
+        Ok(())
     }
 
     pub fn get_var(&mut self, name: String) -> Option<Value> {

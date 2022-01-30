@@ -1,12 +1,4 @@
-let x = 5; 
-
-let a = x; 
-println(a); 
-
-if false {
-    println(99);
-} else {
-    println(86);
+let x = true;
+while x {
+    println(1);
 }
-
-def foo(): string {}

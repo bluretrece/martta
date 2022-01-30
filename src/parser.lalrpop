@@ -10,6 +10,11 @@ pub Prog: Prog = {
 pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
+    "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
+    <ifstmt:IfStmt> => ifstmt,
+}
+
+pub IfStmt: Stmt = {
     "if" <cond:Expr> "{" <stmts:Stmt*> "}" => Stmt::IfStatement(cond, stmts),
     "if" <cond:Expr> "{" <stmts:Stmt*> "}" "else"? "{" <estmts:Stmt*> "}" => Stmt::IfElse(cond, stmts, estmts),
 }
@@ -20,7 +25,7 @@ pub Block: Vec<Stmt> = {
 
 pub Expr: Expr = {
     <lhs: Expr> <op:Operator> <rhs:Expr_> => Expr::Binary(Box::new( lhs ), op , Box::new( rhs )),
-    <expr: Expr_> => expr
+    <expr:Expr_> => expr
 }
 
 pub Operator: Operator = {
@@ -32,6 +37,7 @@ pub Operator: Operator = {
     "<" => Operator::LessThan,
     ">" => Operator::GreaterThan,
     "==" => Operator::EqTo,
+    "+=" => Operator::SumTo,
 }
 
 pub Expr_: Expr = {
@@ -42,6 +48,18 @@ pub Expr_: Expr = {
     <name:Ident> => Expr::Var(name),
     "true" => Expr::Bool(true),
     "false" => Expr::Bool(false),
+    "[" <list:ExprList> "]" => Expr::List(list),
+}
+
+pub ExprList: Vec<Expr> = {
+    () => vec![],
+    <head:Expr> => vec![head],
+    <head:Expr> "," <tail:ExprList> => {
+	let mut list = tail.clone();
+	list.insert(0, head);
+
+	list
+    },
 }
 
 Ident: String = {
