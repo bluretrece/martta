@@ -11,7 +11,19 @@ pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
     "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
+    "def" <i:Ident> "("  <args:ParamList> ")" ":" <stmts:Block> => Stmt::Func(i, ftype),
     <ifstmt:IfStmt> => ifstmt,
+}
+
+pub ParamList: Vec<Expr> = {
+    () => vec![],
+    <head:Expr> => vec![head],
+    <head:Expr> "," <tail:ParamList> => {
+        let mut list = tail.clone();
+        list.insert(0, head);
+
+        list
+    },
 }
 
 pub IfStmt: Stmt = {
@@ -44,7 +56,6 @@ pub Expr_: Expr = {
     <v:IntegerLiteral> => Expr::Int(v),
     <s:StringLiteral> => Expr::Str(s),
     <f:Ident> "(" <args:Expr> ")" => Expr::Call(Call{func: f, args: vec![Box::new(args)]}),
-    "def" <i:Ident> "()" ":" <ftype:Ident> "{}" => Expr::Func(i, ftype),
     <name:Ident> => Expr::Var(name),
     "true" => Expr::Bool(true),
     "false" => Expr::Bool(false),

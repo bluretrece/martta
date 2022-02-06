@@ -13,6 +13,7 @@ pub enum Stmt {
     IfStatement(Expr, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
     IfElse(Expr, Vec<Stmt>, Vec<Stmt>),
+    Func(String, Vec<Expr>, Vec<Stmt>),
 }
 
 #[derive(Clone, Debug)]
@@ -23,7 +24,6 @@ pub enum Expr {
     Var(String),
     Binary(Box<Expr>, Operator, Box<Expr>),
     Call(Call),
-    Func(String, String),
     List(Vec<Expr>),
 }
 

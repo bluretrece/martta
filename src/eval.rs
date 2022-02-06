@@ -22,6 +22,9 @@ pub fn eval_block(stmts: Vec<Stmt>, env: &mut Environment) -> Result<Value, Stri
 pub fn stmt_eval(expr: &Stmt, env: &mut Environment) -> Result<Value, String> {
     match expr {
         Stmt::Expr(x) => expr_eval(x, env),
+        Stmt::Func(name, args, stmts) => {
+            unimplemented!()
+        }
         Stmt::Assign(name, rhs) => match expr_eval(rhs, env) {
             Ok(v) => {
                 env.define(name.to_string(), v);
