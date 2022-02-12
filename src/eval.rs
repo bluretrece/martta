@@ -128,7 +128,6 @@ pub fn expr_eval(expr: &Expr, env: &mut Environment) -> Result<Value, String> {
             Some(v) => Ok(v),
             None => Err(format!("'{}' is not defined", name)),
         },
-        Expr::Func(name, ftype) => Ok(Value::Int(88777777)),
         Expr::List(list) => {
             let values = match expr_evals(list, env) {
                 Ok(v) => v,

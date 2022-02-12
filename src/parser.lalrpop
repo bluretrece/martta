@@ -11,7 +11,7 @@ pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
     "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
-    "def" <i:Ident> "("  <args:ParamList> ")" ":" <stmts:Block> => Stmt::Func(i, ftype),
+    "def" <i:Ident> "("  <args:ParamList> ")" ":" <stmts:Block> => Stmt::Func(i, args, stmts),
     <ifstmt:IfStmt> => ifstmt,
 }
 
