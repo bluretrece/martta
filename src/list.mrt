@@ -1,5 +1,7 @@
-def sum (a){
-    println(a);
+def sum (a, b){
+    println(a + b);
 }
-let x = 4;
-sum(x);
+
+let a = 4;
+let b = 3;
+sum(a, b);
