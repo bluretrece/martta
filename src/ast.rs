@@ -30,7 +30,7 @@ pub enum Expr {
 #[derive(Clone, Debug, PartialOrd, PartialEq)]
 pub struct Call {
     pub func: String,
-    pub args: Vec<Box<Expr>>,
+    pub args: Vec<Expr>,
 }
 
 #[derive(Clone, Debug, PartialOrd, PartialEq)]
