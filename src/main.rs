@@ -24,7 +24,7 @@ pub fn std_print(vals: Vec<Value>) -> Result<Value, String> {
 
 fn main() {
     let mut env = Environment::default();
-    env.define("println".to_string(), Value::Function(std_print))
+    env.define("println".to_string(), Value::BuiltinFunction(std_print))
         .unwrap();
     let input = std::fs::read_to_string("list.mrt").expect("Cannot read source file");
     let source = parser::ProgParser::new().parse(&input).unwrap();

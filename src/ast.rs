@@ -5,7 +5,7 @@ pub enum Prog {
 
 pub type Block = Vec<Stmt>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialOrd, PartialEq)]
 pub enum Stmt {
     Expr(Expr),
     Assign(String, Expr),
@@ -13,10 +13,10 @@ pub enum Stmt {
     IfStatement(Expr, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
     IfElse(Expr, Vec<Stmt>, Vec<Stmt>),
-    Func(String, Vec<Expr>, Vec<Stmt>),
+    Func(String, Vec<String>, Block),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum Expr {
     Int(i32),
     Bool(bool),
@@ -27,13 +27,13 @@ pub enum Expr {
     List(Vec<Expr>),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialOrd, PartialEq)]
 pub struct Call {
     pub func: String,
     pub args: Vec<Box<Expr>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialOrd, PartialEq)]
 pub enum Operator {
     Add,
     Sub,
@@ -46,13 +46,14 @@ pub enum Operator {
     SumTo,
 }
 
-#[derive(Clone, Debug, std::cmp::PartialEq, PartialOrd)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum Value {
     Int(i32),
     Bool(bool),
     Str(String),
     List(Vec<Value>),
-    Function(fn(Vec<Value>) -> Result<Value, String>),
+    BuiltinFunction(fn(Vec<Value>) -> Result<Value, String>),
+    Function(Vec<String>, Vec<Stmt>),
     Nil,
 }
 

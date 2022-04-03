@@ -24,7 +24,7 @@ mod tests {
     #[test]
     fn int_printing() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::Function(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let input = "println(40 + 6);";
         let source = parser::ProgParser::new().parse(input).unwrap();
@@ -36,7 +36,7 @@ mod tests {
     #[test]
     fn assignment_and_println() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::Function(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let input = "let x = 5;\n let a = x;\n a;";
         let source = parser::ProgParser::new().parse(input).unwrap();
@@ -58,7 +58,7 @@ mod tests {
     #[test]
     fn binary_bool_assignment() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::Function(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let input = "let b = false && false; b;";
         let source = parser::ProgParser::new().parse(input).unwrap();
@@ -70,7 +70,7 @@ mod tests {
     #[test]
     fn if_should_not_evaluate() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::Function(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let input = "if false || false {
 			99;
@@ -84,7 +84,7 @@ mod tests {
     #[test]
     fn if_should_evaluate() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::Function(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let input = "if true {
 			println(99);

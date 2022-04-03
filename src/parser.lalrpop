@@ -11,14 +11,14 @@ pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
     "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
-    "def" <i:Ident> "("  <args:ParamList> ")" ":" <stmts:Block> => Stmt::Func(i, args, stmts),
+    "def" <i:Ident> "("  <args:ParamList> ")" <stmts:Block> => Stmt::Func(i, args, stmts),
     <ifstmt:IfStmt> => ifstmt,
 }
 
-pub ParamList: Vec<Expr> = {
+pub ParamList: Vec<String> = {
     () => vec![],
-    <head:Expr> => vec![head],
-    <head:Expr> "," <tail:ParamList> => {
+    <head:Ident> => vec![head],
+    <head:Ident> "," <tail:ParamList> => {
         let mut list = tail.clone();
         list.insert(0, head);
 

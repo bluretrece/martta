@@ -23,7 +23,13 @@ pub fn stmt_eval(expr: &Stmt, env: &mut Environment) -> Result<Value, String> {
     match expr {
         Stmt::Expr(x) => expr_eval(x, env),
         Stmt::Func(name, args, stmts) => {
-            unimplemented!()
+            let v = Value::Function(args.to_vec(), stmts.to_vec());
+
+            if let Err(e) = env.define(name.clone(), v) {
+                return Err(e);
+            } else {
+                Ok(Value::Nil)
+            }
         }
         Stmt::Assign(name, rhs) => match expr_eval(rhs, env) {
             Ok(v) => {
@@ -142,6 +148,7 @@ pub fn expr_eval(expr: &Expr, env: &mut Environment) -> Result<Value, String> {
         }) => {
             let mut vals = Vec::new();
 
+            // Evaluate the arguments
             for arg in args {
                 match expr_eval(arg, env) {
                     Ok(v) => vals.push(v),
@@ -149,13 +156,17 @@ pub fn expr_eval(expr: &Expr, env: &mut Environment) -> Result<Value, String> {
                 }
             }
 
+            // Is it the function defined?
             let function_defined = match env.get_var(function.to_string()) {
                 Some(v) => v,
                 None => return Err(format!("Function '{}' is not defined", &function)),
             };
 
-            if let Value::Function(f) = function_defined {
+            // Is it builtin function or user defined function?
+            if let Value::BuiltinFunction(f) = function_defined {
                 f(vals)
+            } else if let Value::Function(args, stmts) = function_defined {
+                eval_block(stmts, env)
             } else {
                 Err(format!("'{}' isn't a function", function))
             }

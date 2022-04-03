@@ -1,2 +1,5 @@
-let x = [1, 2, 3];
-println(x);
+def sum (a){
+    println(a);
+}
+let x = 4;
+sum(x);
