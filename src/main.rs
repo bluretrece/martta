@@ -1,10 +1,10 @@
 pub mod ast;
 pub mod environment;
-pub mod eval;
+pub mod interpreter;
 pub mod tests;
 use ast::*;
 use environment::*;
-use eval::*;
+use interpreter::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 

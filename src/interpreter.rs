@@ -188,7 +188,7 @@ impl Interpreter {
                 // Is it builtin function or user defined function?
                 if let Value::BuiltinFunction(f) = function_defined {
                     f(vals)
-                } else if let Value::Function(args, stmts) = function_defined {
+                } else if let Value::Function(_args, stmts) = function_defined {
                     self.eval_block(stmts)
                 } else {
                     Err(format!("'{}' isn't a function", function))
