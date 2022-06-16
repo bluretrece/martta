@@ -24,11 +24,29 @@ impl Interpreter {
     }
 
     pub fn eval_block(&mut self, stmts: Vec<Stmt>) -> Result<Value, String> {
-        let mut value = Value::Nil;
-        for stmt in stmts {
-            value = self.stmt_eval(&stmt)?;
-        }
+        let value;
+        let env_ref = Rc::clone(&self.env);
+        value = self.execute_block(stmts, Rc::new(RefCell::new(Environment::with_ref(env_ref))))?;
+
         Ok(value)
+    }
+
+    pub fn execute_block(
+        &mut self,
+        stmts: Vec<Stmt>,
+        env: Rc<RefCell<Environment>>,
+    ) -> Result<Value, String> {
+        let mut v = Value::Nil;
+        let previous = Rc::clone(&self.env);
+        self.env = env;
+        for stmt in stmts {
+            v = self.stmt_eval(&stmt)?
+        }
+
+        self.env = previous;
+        Ok(v)
+        // println!("{}", value);
+        // Ok(value)
     }
 
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<Value, String> {
