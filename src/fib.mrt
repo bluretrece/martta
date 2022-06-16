@@ -1,0 +1,9 @@
+def a (n) {
+    if false {
+        return n;
+    } else {
+        return n-1 + n-2;
+    }
+}
+let n = 3;
+a(n)
