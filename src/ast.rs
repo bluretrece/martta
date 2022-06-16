@@ -8,6 +8,7 @@ pub type Block = Vec<Stmt>;
 #[derive(Clone, Debug, PartialOrd, PartialEq)]
 pub enum Stmt {
     Expr(Expr),
+    Return(Expr),
     Assign(String, Expr),
     ReAssign(String, Operator, Expr),
     IfStatement(Expr, Vec<Stmt>),
