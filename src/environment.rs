@@ -10,6 +10,12 @@ pub struct Environment {
 }
 
 impl Environment {
+    pub fn tree(&self) {
+        if let Some(parent) = &self.enclosing {
+            println!("global = {:#?}", parent);
+        }
+        println!("{:#?}", &self.vals);
+    }
     pub fn define(&mut self, name: String, value: Value) -> Result<(), String> {
         self.vals.insert(name, value);
         Ok(())
