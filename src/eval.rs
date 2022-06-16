@@ -29,11 +29,6 @@ pub fn stmt_eval(expr: &Stmt, env: &mut Environment) -> Result<Value, String> {
                 Ok(_) => Ok(Value::Nil),
                 Err(e) => return Err(e),
             }
-            //             if let Err(e) = env.define(name.clone(), v) {
-            //                 return Err(e);
-            //             } else {
-            //                 Ok(Value::Nil)
-            //             }
         }
         Stmt::Assign(name, rhs) => match expr_eval(rhs, env) {
             Ok(v) => {

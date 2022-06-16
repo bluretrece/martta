@@ -1,7 +1,0 @@
-def sum (a, b){
-    println(a + b);
-}
-
-let a = 4;
-let b = 3;
-sum(a, b);
