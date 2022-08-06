@@ -30,8 +30,7 @@ fn main() {
     //     .unwrap();
     let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
     let input = std::fs::read_to_string("fib.mrt").expect("Cannot read source file");
-    let source = parser::ProgParser::new().parse(&input).unwrap();
+    let source: Prog = parser::ProgParser::new().parse(&input).unwrap();
     let res = interpreter.eval(&source).unwrap();
-    interpreter.env.borrow_mut().tree();
     println!("{}", res);
 }
