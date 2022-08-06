@@ -48,6 +48,7 @@ pub Operator: Operator = {
     "||" => Operator::Or,
     "&&" => Operator::And,
     "<" => Operator::LessThan,
+    "<=" => Operator::LessOrEqual,
     ">" => Operator::GreaterThan,
     "==" => Operator::EqTo,
     "+=" => Operator::SumTo,

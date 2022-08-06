@@ -159,6 +159,7 @@ impl Interpreter {
                     Operator::Div => Ok(lhs / rhs),
                     Operator::GreaterThan => Ok(Value::Bool(lhs > rhs)),
                     Operator::LessThan => Ok(Value::Bool(lhs < rhs)),
+                    Operator::LessOrEqual => Ok(Value::Bool(lhs <= rhs)),
                     Operator::EqTo => Ok(Value::Bool(lhs == rhs)),
                     Operator::Or => {
                         if let Value::Bool(a) = lhs {

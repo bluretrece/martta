@@ -43,6 +43,7 @@ pub enum Operator {
     And,
     GreaterThan,
     LessThan,
+    LessOrEqual,
     EqTo,
     SumTo,
 }
