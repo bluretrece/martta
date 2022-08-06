@@ -23,12 +23,29 @@ impl Interpreter {
         Ok(value)
     }
 
-    pub fn eval_block(&mut self, stmts: Vec<Stmt>) -> Result<Value, String> {
-        let value;
-        let env_ref = Rc::clone(&self.env);
-        value = self.execute_block(stmts, Rc::new(RefCell::new(Environment::with_ref(env_ref))))?;
+    pub fn eval_block(
+        &mut self,
+        stmts: Vec<Stmt>,
+        env: Rc<RefCell<Environment>>,
+    ) -> Result<Value, String> {
+        let mut value: Value = Value::Nil;
+        let previous = self.env.clone();
+        let steps = || -> Result<Value, String> {
+            self.env = env;
+            for statement in stmts {
+                value = self.stmt_eval(&statement)?
+            }
+            Ok(value)
+        };
+        let result = steps();
+        self.env = previous;
+        Ok(result?)
 
-        Ok(value)
+        // let value;
+        // let env_ref = Rc::clone(&self.env);
+        // value = self.execute_block(stmts, Rc::new(RefCell::new(Environment::with_ref(env_ref))))?;
+
+        // Ok(value)
     }
 
     pub fn execute_block(
@@ -94,14 +111,14 @@ impl Interpreter {
                 if !conditional {
                     break Ok(Value::Nil);
                 }
-                if let Err(e) = self.eval_block(stmts.to_vec()) {
+                if let Err(e) = self.eval_block(stmts.to_vec(), self.env.clone()) {
                     return Err(e);
                 }
             },
 
             Stmt::IfStatement(cond, stmts) => match self.expr_eval(cond) {
                 Ok(b) => match b {
-                    Value::Bool(true) => self.eval_block(stmts.to_vec()),
+                    Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
                     Value::Bool(false) => Ok(Value::Nil),
                     _ => unreachable!(),
                 },
@@ -109,8 +126,8 @@ impl Interpreter {
             },
             Stmt::IfElse(cond, stmts, estmt) => match self.expr_eval(cond) {
                 Ok(b) => match b {
-                    Value::Bool(true) => self.eval_block(stmts.to_vec()),
-                    Value::Bool(false) => self.eval_block(estmt.to_vec()),
+                    Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
+                    Value::Bool(false) => self.eval_block(estmt.to_vec(), self.env.clone()),
                     _ => unreachable!(),
                 },
                 Err(_) => Err("Expression must be boolean".to_string()),
@@ -206,8 +223,15 @@ impl Interpreter {
                 // Is it builtin function or user defined function?
                 if let Value::BuiltinFunction(f) = function_defined {
                     f(vals)
-                } else if let Value::Function(_args, stmts) = function_defined {
-                    self.eval_block(stmts)
+                } else if let Value::Function(params, stmts) = function_defined {
+                    let mut environment =
+                        Rc::new(RefCell::new(Environment::with_ref(self.env.clone())));
+                    for (param, argument) in params.iter().zip(vals.iter()) {
+                        environment
+                            .borrow_mut()
+                            .define(param.clone(), argument.clone());
+                    }
+                    self.eval_block(stmts, environment)
                 } else {
                     Err(format!("'{}' isn't a function", function))
                 }
