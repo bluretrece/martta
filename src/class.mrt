@@ -1,0 +1,6 @@
+let a = 2;
+class foo {
+    def bar(a) {
+        return a;
+    }
+}
