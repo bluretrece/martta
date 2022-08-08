@@ -30,9 +30,20 @@ pub enum Expr {
 }
 
 #[derive(Clone, Debug, PartialOrd, PartialEq)]
-pub struct Call {
+pub enum Call {
+    Function(Function),
+    Class(Class),
+}
+
+#[derive(Clone, Debug, PartialOrd, PartialEq)]
+pub struct Function {
     pub func: String,
     pub args: Vec<Expr>,
+}
+
+#[derive(Clone, Debug, PartialOrd, PartialEq)]
+pub struct Class {
+    pub identifier: String,
 }
 
 #[derive(Clone, Debug, PartialOrd, PartialEq)]

@@ -25,9 +25,9 @@ pub fn std_print(vals: Vec<Value>) -> Result<Value, String> {
 }
 
 fn main() {
-    let env = Environment::default();
-    // env.define("println".to_string(), Value::BuiltinFunction(std_print))
-    //     .unwrap();
+    let mut env = Environment::default();
+    env.define("println".to_string(), Value::BuiltinFunction(std_print))
+        .unwrap();
     let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
     let input = std::fs::read_to_string("class.mrt").expect("Cannot read source file");
     let source: Prog = parser::ProgParser::new().parse(&input).unwrap();

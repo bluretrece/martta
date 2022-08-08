@@ -4,3 +4,6 @@ class foo {
         return a;
     }
 }
+
+let f = foo();
+f;

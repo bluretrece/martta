@@ -39,13 +39,8 @@ impl Interpreter {
         };
         let result = steps();
         self.env = previous;
-        Ok(result?)
 
-        // let value;
-        // let env_ref = Rc::clone(&self.env);
-        // value = self.execute_block(stmts, Rc::new(RefCell::new(Environment::with_ref(env_ref))))?;
-
-        // Ok(value)
+        result
     }
 
     pub fn execute_block(
@@ -62,8 +57,6 @@ impl Interpreter {
 
         self.env = previous;
         Ok(v)
-        // println!("{}", value);
-        // Ok(value)
     }
 
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<Value, String> {
@@ -82,18 +75,20 @@ impl Interpreter {
 
                 match self.env.borrow_mut().define(name.clone(), v) {
                     Ok(_) => Ok(Value::Nil),
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
 
-            Stmt::Class(identifier, body) => {
-                println!("{:?}", identifier);
+            Stmt::Class(identifier, _body) => {
+                self.env
+                    .borrow_mut()
+                    .define(identifier.clone(), Value::Str(String::from(identifier)));
                 Ok(Value::Nil)
             }
 
             Stmt::Assign(name, rhs) => match self.expr_eval(rhs) {
                 Ok(v) => {
-                    self.env.borrow_mut().define(name.to_string(), v);
+                    self.env.borrow_mut().define(name.to_string(), v)?;
                     Ok(Value::Nil)
                 }
                 Err(e) => Err(e),
@@ -206,10 +201,16 @@ impl Interpreter {
 
                 Ok(Value::List(values))
             }
-            Expr::Call(Call {
+            Expr::Call(Call::Class(Class { identifier: name })) => {
+                match self.env.borrow_mut().get_var(name.to_string()) {
+                    Some(v) => Ok(v),
+                    None => Err(format!("'{}' is not defined", name)),
+                }
+            }
+            Expr::Call(Call::Function(Function {
                 func: function,
                 args,
-            }) => {
+            })) => {
                 let mut vals = Vec::new();
 
                 // Evaluate the arguments
@@ -230,12 +231,12 @@ impl Interpreter {
                 if let Value::BuiltinFunction(f) = function_defined {
                     f(vals)
                 } else if let Value::Function(params, stmts) = function_defined {
-                    let mut environment =
+                    let environment =
                         Rc::new(RefCell::new(Environment::with_ref(self.env.clone())));
                     for (param, argument) in params.iter().zip(vals.iter()) {
                         environment
                             .borrow_mut()
-                            .define(param.clone(), argument.clone());
+                            .define(param.clone(), argument.clone())?;
                     }
                     self.eval_block(stmts, environment)
                 } else {
