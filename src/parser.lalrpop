@@ -12,6 +12,7 @@ pub Stmt: Stmt = {
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
     "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
     "def" <i:Ident> "("  <args:ParamList> ")" <stmts:Block> => Stmt::Func(i, args, stmts),
+    "class" <name: Ident> <stmts:Block> => Stmt::Class(name, stmts),
     "return" <expr:Expr> ";" => Stmt::Return(expr),
     <ifstmt:IfStmt> => ifstmt,
 }

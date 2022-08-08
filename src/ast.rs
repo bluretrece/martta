@@ -15,6 +15,7 @@ pub enum Stmt {
     While(Expr, Vec<Stmt>),
     IfElse(Expr, Vec<Stmt>, Vec<Stmt>),
     Func(String, Vec<String>, Block),
+    Class(String, Block),
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
@@ -71,7 +72,7 @@ impl std::fmt::Display for Value {
                 }
 
                 for el in values.iter() {
-                    write!(f, "{} ", el);
+                    write!(f, "{} ", el)?;
                 }
                 Ok(())
             }

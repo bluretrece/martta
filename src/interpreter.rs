@@ -86,6 +86,11 @@ impl Interpreter {
                 }
             }
 
+            Stmt::Class(identifier, body) => {
+                println!("{:?}", identifier);
+                Ok(Value::Nil)
+            }
+
             Stmt::Assign(name, rhs) => match self.expr_eval(rhs) {
                 Ok(v) => {
                     self.env.borrow_mut().define(name.to_string(), v);

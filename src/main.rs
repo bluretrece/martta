@@ -29,7 +29,7 @@ fn main() {
     // env.define("println".to_string(), Value::BuiltinFunction(std_print))
     //     .unwrap();
     let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
-    let input = std::fs::read_to_string("fib.mrt").expect("Cannot read source file");
+    let input = std::fs::read_to_string("class.mrt").expect("Cannot read source file");
     let source: Prog = parser::ProgParser::new().parse(&input).unwrap();
     let res = interpreter.eval(&source).unwrap();
     println!("{}", res);
