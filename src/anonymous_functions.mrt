@@ -1,0 +1,5 @@
+let a = fn (n) => {
+    return n + 1
+};
+
+a(4);

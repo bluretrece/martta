@@ -201,6 +201,11 @@ impl Interpreter {
 
                 Ok(Value::List(values))
             }
+            Expr::Function(args, stmts) => {
+                let f = Value::Function(args.to_vec(), stmts.to_vec());
+
+                Ok(f)
+            }
             Expr::Call(Call::Class(Class { identifier: name })) => {
                 match self.env.borrow_mut().get_var(name.to_string()) {
                     Some(v) => Ok(v),

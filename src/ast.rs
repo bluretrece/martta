@@ -26,6 +26,7 @@ pub enum Expr {
     Var(String),
     Binary(Box<Expr>, Operator, Box<Expr>),
     Call(Call),
+    Function(Vec<String>, Vec<Stmt>),
     List(Vec<Expr>),
 }
 

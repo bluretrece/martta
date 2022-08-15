@@ -13,7 +13,7 @@ pub Stmt: Stmt = {
     "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
     "def" <i:Ident> "("  <args:ParamList> ")" <stmts:Block> => Stmt::Func(i, args, stmts),
     "class" <name: Ident> <stmts:Block> => Stmt::Class(name, stmts),
-    "return" <expr:Expr> ";" => Stmt::Return(expr),
+    "return" <expr:Expr> ";"? => Stmt::Return(expr),
     <ifstmt:IfStmt> => ifstmt,
 }
 
@@ -61,6 +61,7 @@ pub Expr_: Expr = {
     <f:Ident> "(" <args:ExprList> ")" => Expr::Call(Call::Function(Function {func: f, args: args})),
     <f:Ident> "()" => Expr::Call(Call::Class(Class {identifier: f})),
     <name:Ident> => Expr::Var(name),
+    "fn" "(" <args:ParamList> ")" "=>" <stmts:Block> => Expr::Function(args, stmts),
     "true" => Expr::Bool(true),
     "false" => Expr::Bool(false),
     "[" <list:ExprList> "]" => Expr::List(list),
