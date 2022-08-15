@@ -10,6 +10,7 @@ pub Prog: Prog = {
 pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
     "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
+    <variable:Ident> "=" <rhs:Expr> ";" => Stmt::ReAssign(variable, rhs),
     "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
     "def" <i:Ident> "("  <args:ParamList> ")" <stmts:Block> => Stmt::Func(i, args, stmts),
     "class" <name: Ident> <stmts:Block> => Stmt::Class(name, stmts),

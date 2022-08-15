@@ -94,9 +94,15 @@ impl Interpreter {
                 Err(e) => Err(e),
             },
 
-            Stmt::ReAssign(_lhs, _op, _rhs) => {
-                unimplemented!();
-            }
+            Stmt::ReAssign(ref var, rhs) => match self.expr_eval(rhs) {
+                Ok(value) => {
+                    if let Some(x) = self.env.borrow_mut().vals.get_mut(var) {
+                        *x = value;
+                    }
+                    Ok(Value::Nil)
+                }
+                Err(e) => Err(e),
+            },
 
             Stmt::While(cond, stmts) => loop {
                 let conditional = match self.expr_eval(cond) {

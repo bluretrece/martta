@@ -10,7 +10,7 @@ pub enum Stmt {
     Expr(Expr),
     Return(Expr),
     Assign(String, Expr),
-    ReAssign(String, Operator, Expr),
+    ReAssign(String, Expr),
     IfStatement(Expr, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
     IfElse(Expr, Vec<Stmt>, Vec<Stmt>),
