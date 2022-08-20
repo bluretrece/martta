@@ -172,21 +172,12 @@ impl Interpreter {
                     Operator::LessThan => Ok(Value::Bool(lhs < rhs)),
                     Operator::LessOrEqual => Ok(Value::Bool(lhs <= rhs)),
                     Operator::EqTo => Ok(Value::Bool(lhs == rhs)),
-                    Operator::Or => {
-                        if let Value::Bool(a) = lhs {
-                            if let Value::Bool(b) = rhs {
-                                Ok(Value::Bool(a || b))
-                            } else {
-                                Err(Error::InvalidOperation(
-                                    "Second operand must be boolean".to_string(),
-                                ))
-                            }
-                        } else {
-                            Err(Error::InvalidOperation(
-                                "Only boolean types allowed in Or operations".to_string(),
-                            ))
-                        }
-                    }
+                    Operator::Or => match (rhs, lhs) {
+                        (Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a || b)),
+                        (_, _) => Err(Error::InvalidOperation(
+                            "Only boolean types allowed in Or operations".to_string(),
+                        )),
+                    },
                     Operator::And => match (rhs, lhs) {
                         (Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a && b)),
                         (_, _) => Err(Error::InvalidOperation(
