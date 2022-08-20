@@ -2,11 +2,50 @@
 mod tests {
     use crate::*;
     #[test]
+    fn fibonacci() {
+        let mut env = Environment::default();
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+            .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
+        let input = "sum :: n {
+            if n < 2 {
+                return n;
+            } else {
+                return sum(n-1) + sum(n-2);
+            }
+        }
+
+        let n=8;
+        sum(n)";
+
+        let source = parser::ProgParser::new().parse(&input).unwrap();
+        let res = interpreter.eval(&source);
+
+        assert_eq!(res, Ok(Value::Int(21)));
+    }
+
+    #[test]
+    #[should_panic]
+    fn bool_operation() {
+        let mut env = Environment::default();
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+            .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
+        let input = "true && 2";
+
+        let source = parser::ProgParser::new().parse(&input).unwrap();
+        let res = interpreter.eval(&source);
+
+        assert_eq!(res, Ok(Value::Int(1)));
+    }
+
+    #[test]
     fn int_parsing() {
         let mut env = Environment::default();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "197";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Int(197)));
     }
@@ -14,9 +53,10 @@ mod tests {
     #[test]
     fn bool_parsing() {
         let mut env = Environment::default();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "true";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Bool(true)));
     }
@@ -26,9 +66,10 @@ mod tests {
         let mut env = Environment::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "println(40 + 6);";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Int(46)));
     }
@@ -36,11 +77,10 @@ mod tests {
     #[test]
     fn assignment_and_println() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
-            .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "let x = 5;\n let a = x;\n a;";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Int(5)));
     }
@@ -48,9 +88,10 @@ mod tests {
     #[test]
     fn false_bool_parsing() {
         let mut env = Environment::default();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "false";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Bool(false)));
     }
@@ -60,9 +101,10 @@ mod tests {
         let mut env = Environment::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "let b = false && false; b;";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Bool(false)));
     }
@@ -72,11 +114,12 @@ mod tests {
         let mut env = Environment::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if false || false {
 			99;
 		    }";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Nil));
     }
@@ -86,13 +129,14 @@ mod tests {
         let mut env = Environment::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if true {
 			println(99);
 		     } else {
 			println(86);
 		     }";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Int(99)));
     }
@@ -101,11 +145,12 @@ mod tests {
     #[ignore]
     fn source_file_evaluation() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::Function(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = std::fs::read_to_string("hello.mrt").expect("Cannot read source file");
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Int(91)));
     }
@@ -113,15 +158,16 @@ mod tests {
     #[test]
     fn else_evaluation() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::Function(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if 1 == 4 {
 			println(99);
 		     } else {
 			println(86);
 		     }";
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let res = eval(&source, &mut env);
+        let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Int(86)));
     }
