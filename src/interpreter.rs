@@ -187,21 +187,12 @@ impl Interpreter {
                             ))
                         }
                     }
-                    Operator::And => {
-                        if let Value::Bool(a) = lhs {
-                            if let Value::Bool(b) = rhs {
-                                Ok(Value::Bool(a && b))
-                            } else {
-                                Err(Error::InvalidOperation(
-                                    "Second operand must be boolean".to_string(),
-                                ))
-                            }
-                        } else {
-                            Err(Error::InvalidOperation(
-                                "Only boolean types allowed in Or operations".to_string(),
-                            ))
-                        }
-                    }
+                    Operator::And => match (rhs, lhs) {
+                        (Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a && b)),
+                        (_, _) => Err(Error::InvalidOperation(
+                            "Only boolean types allowed in Or operations".to_string(),
+                        )),
+                    },
                     _ => unreachable!(),
                 }
             }
@@ -225,7 +216,6 @@ impl Interpreter {
             }
             Expr::Function(args, stmts) => {
                 let f = Value::Function(args.to_vec(), stmts.to_vec());
-
                 Ok(f)
             }
             Expr::Call(Call::Class(Class { identifier: name })) => {
@@ -262,23 +252,22 @@ impl Interpreter {
                     }
                 };
 
-                // Is it builtin function or user defined function?
-                if let Value::BuiltinFunction(f) = function_defined {
-                    f(vals)
-                } else if let Value::Function(params, stmts) = function_defined {
-                    let environment =
-                        Rc::new(RefCell::new(Environment::with_ref(self.env.clone())));
-                    for (param, argument) in params.iter().zip(vals.iter()) {
-                        environment
-                            .borrow_mut()
-                            .define(param.clone(), argument.clone())?;
+                match function_defined {
+                    Value::BuiltinFunction(f) => f(vals),
+                    Value::Function(params, stmts) => {
+                        let environment =
+                            Rc::new(RefCell::new(Environment::with_ref(self.env.clone())));
+                        for (param, argument) in params.iter().zip(vals.iter()) {
+                            environment
+                                .borrow_mut()
+                                .define(param.clone(), argument.clone())?;
+                        }
+                        self.eval_block(stmts, environment)
                     }
-                    self.eval_block(stmts, environment)
-                } else {
-                    Err(Error::InvalidOperation(format!(
+                    _ => Err(Error::InvalidOperation(format!(
                         "'{}' isn't a function",
                         function
-                    )))
+                    ))),
                 }
             }
         }
