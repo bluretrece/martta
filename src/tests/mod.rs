@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::*;
+
     #[test]
     fn fibonacci() {
         let mut env = Environment::default();
@@ -40,8 +41,26 @@ mod tests {
     }
 
     #[test]
-    fn int_parsing() {
+    fn re_assignment() {
         let mut env = Environment::default();
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+            .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
+        let input = "
+            let a = 1;
+
+            a = 4;
+            println(a);";
+
+        let source = parser::ProgParser::new().parse(input).unwrap();
+        let res = interpreter.eval(&source);
+
+        assert_eq!(res, Ok(Value::Int(4)));
+    }
+
+    #[test]
+    fn int_parsing() {
+        let env = Environment::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "197";
         let source = parser::ProgParser::new().parse(input).unwrap();
@@ -52,7 +71,7 @@ mod tests {
 
     #[test]
     fn bool_parsing() {
-        let mut env = Environment::default();
+        let env = Environment::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "true";
         let source = parser::ProgParser::new().parse(input).unwrap();
@@ -76,7 +95,7 @@ mod tests {
 
     #[test]
     fn assignment_and_println() {
-        let mut env = Environment::default();
+        let env = Environment::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "let x = 5;\n let a = x;\n a;";
         let source = parser::ProgParser::new().parse(input).unwrap();
@@ -87,7 +106,7 @@ mod tests {
 
     #[test]
     fn false_bool_parsing() {
-        let mut env = Environment::default();
+        let env = Environment::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "false";
         let source = parser::ProgParser::new().parse(input).unwrap();
@@ -139,20 +158,6 @@ mod tests {
         let res = interpreter.eval(&source);
 
         assert_eq!(res, Ok(Value::Int(99)));
-    }
-
-    #[test]
-    #[ignore]
-    fn source_file_evaluation() {
-        let mut env = Environment::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
-            .unwrap();
-        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
-        let input = std::fs::read_to_string("hello.mrt").expect("Cannot read source file");
-        let source = parser::ProgParser::new().parse(&input).unwrap();
-        let res = interpreter.eval(&source);
-
-        assert_eq!(res, Ok(Value::Int(91)));
     }
 
     #[test]
