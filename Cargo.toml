@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 lalrpop-util = { version = "0.19.6", features = ["lexer"] }
 regex = "1"
+thiserror = "1.0.32"
 
 # Add a build-time dependency on the lalrpop library:
 [build-dependencies]

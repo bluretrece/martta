@@ -1,3 +1,4 @@
+use crate::error::*;
 use crate::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -11,7 +12,7 @@ impl Interpreter {
         Self { env }
     }
 
-    pub fn eval(&mut self, program: &Prog) -> Result<Value, String> {
+    pub fn eval(&mut self, program: &Prog) -> Result<Value, Error> {
         let mut value = Value::Nil;
         match program {
             Prog::Body(stmts) => {
@@ -27,10 +28,10 @@ impl Interpreter {
         &mut self,
         stmts: Vec<Stmt>,
         env: Rc<RefCell<Environment>>,
-    ) -> Result<Value, String> {
+    ) -> Result<Value, Error> {
         let mut value: Value = Value::Nil;
         let previous = self.env.clone();
-        let steps = || -> Result<Value, String> {
+        let steps = || -> Result<Value, Error> {
             self.env = env;
             for statement in stmts {
                 value = self.stmt_eval(&statement)?
@@ -47,7 +48,7 @@ impl Interpreter {
         &mut self,
         stmts: Vec<Stmt>,
         env: Rc<RefCell<Environment>>,
-    ) -> Result<Value, String> {
+    ) -> Result<Value, Error> {
         let mut v = Value::Nil;
         let previous = Rc::clone(&self.env);
         self.env = env;
@@ -59,7 +60,7 @@ impl Interpreter {
         Ok(v)
     }
 
-    pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<Value, String> {
+    pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<Value, Error> {
         match expr {
             Stmt::Expr(x) => self.expr_eval(x),
             Stmt::Return(e) => {
@@ -75,7 +76,7 @@ impl Interpreter {
 
                 match self.env.borrow_mut().define(name.clone(), v) {
                     Ok(_) => Ok(Value::Nil),
-                    Err(e) => Err(e),
+                    Err(e) => Err(Error::InvalidOperation(e)),
                 }
             }
 
@@ -128,7 +129,9 @@ impl Interpreter {
                     Value::Bool(false) => Ok(Value::Nil),
                     _ => unreachable!(),
                 },
-                Err(_) => Err("Expression must be boolean".to_string()),
+                Err(_) => Err(Error::InvalidOperation(
+                    "Expression must be boolean".to_string(),
+                )),
             },
             Stmt::IfElse(cond, stmts, estmt) => match self.expr_eval(cond) {
                 Ok(b) => match b {
@@ -136,24 +139,26 @@ impl Interpreter {
                     Value::Bool(false) => self.eval_block(estmt.to_vec(), self.env.clone()),
                     _ => unreachable!(),
                 },
-                Err(_) => Err("Expression must be boolean".to_string()),
+                Err(_) => Err(Error::InvalidOperation(
+                    "Expression must be boolean".to_string(),
+                )),
             },
         }
     }
-    pub fn expr_evals(&mut self, exprs: &Vec<Expr>) -> Result<Vec<Value>, String> {
+    pub fn expr_evals(&mut self, exprs: &Vec<Expr>) -> Result<Vec<Value>, Error> {
         let mut vals: Vec<Value> = Vec::new();
 
         for expr in exprs {
             match self.expr_eval(expr) {
                 Ok(v) => vals.push(v),
-                Err(e) => return Err(e),
+                Err(e) => return Err(Error::InvalidOperation(e.to_string())),
             }
         }
 
         Ok(vals)
     }
 
-    pub fn expr_eval(&mut self, expr: &Expr) -> Result<Value, String> {
+    pub fn expr_eval(&mut self, expr: &Expr) -> Result<Value, Error> {
         match expr {
             Expr::Binary(lhs, op, rhs) => {
                 let lhs = self.expr_eval(lhs)?;
@@ -172,10 +177,14 @@ impl Interpreter {
                             if let Value::Bool(b) = rhs {
                                 Ok(Value::Bool(a || b))
                             } else {
-                                Err("Second operand must be boolean".to_string())
+                                Err(Error::InvalidOperation(
+                                    "Second operand must be boolean".to_string(),
+                                ))
                             }
                         } else {
-                            Err("Only boolean types allowed in Or operations".to_string())
+                            Err(Error::InvalidOperation(
+                                "Only boolean types allowed in Or operations".to_string(),
+                            ))
                         }
                     }
                     Operator::And => {
@@ -183,10 +192,14 @@ impl Interpreter {
                             if let Value::Bool(b) = rhs {
                                 Ok(Value::Bool(a && b))
                             } else {
-                                Err("Second operand must be boolean".to_string())
+                                Err(Error::InvalidOperation(
+                                    "Second operand must be boolean".to_string(),
+                                ))
                             }
                         } else {
-                            Err("Only boolean types allowed in Or operations".to_string())
+                            Err(Error::InvalidOperation(
+                                "Only boolean types allowed in Or operations".to_string(),
+                            ))
                         }
                     }
                     _ => unreachable!(),
@@ -197,7 +210,10 @@ impl Interpreter {
             Expr::Str(s) => Ok(Value::Str(s.to_string())),
             Expr::Var(name) => match self.env.borrow_mut().get_var(name.to_string()) {
                 Some(v) => Ok(v),
-                None => Err(format!("'{}' is not defined", name)),
+                None => Err(Error::InvalidOperation(format!(
+                    "'{}' is not defined",
+                    name
+                ))),
             },
             Expr::List(list) => {
                 let values = match self.expr_evals(list) {
@@ -215,7 +231,10 @@ impl Interpreter {
             Expr::Call(Call::Class(Class { identifier: name })) => {
                 match self.env.borrow_mut().get_var(name.to_string()) {
                     Some(v) => Ok(v),
-                    None => Err(format!("'{}' is not defined", name)),
+                    None => Err(Error::InvalidOperation(format!(
+                        "'{}' is not defined",
+                        name
+                    ))),
                 }
             }
             Expr::Call(Call::Function(Function {
@@ -235,7 +254,12 @@ impl Interpreter {
                 // Is it the function defined?
                 let function_defined = match self.env.borrow_mut().get_var(function.to_string()) {
                     Some(v) => v,
-                    None => return Err(format!("Function '{}' is not defined", &function)),
+                    None => {
+                        return Err(Error::InvalidOperation(format!(
+                            "Function '{}' is not defined",
+                            &function
+                        )))
+                    }
                 };
 
                 // Is it builtin function or user defined function?
@@ -251,7 +275,10 @@ impl Interpreter {
                     }
                     self.eval_block(stmts, environment)
                 } else {
-                    Err(format!("'{}' isn't a function", function))
+                    Err(Error::InvalidOperation(format!(
+                        "'{}' isn't a function",
+                        function
+                    )))
                 }
             }
         }

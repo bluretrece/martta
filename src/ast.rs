@@ -1,3 +1,5 @@
+use crate::error::Error;
+
 #[derive(Clone, Debug)]
 pub enum Prog {
     Body(Block),
@@ -67,7 +69,7 @@ pub enum Value {
     Bool(bool),
     Str(String),
     List(Vec<Value>),
-    BuiltinFunction(fn(Vec<Value>) -> Result<Value, String>),
+    BuiltinFunction(fn(Vec<Value>) -> Result<Value, Error>),
     Function(Vec<String>, Vec<Stmt>),
     Nil,
 }

@@ -1,5 +1,6 @@
 pub mod ast;
 pub mod environment;
+pub mod error;
 pub mod interpreter;
 pub mod tests;
 use ast::*;
@@ -18,7 +19,7 @@ lalrpop_mod!(
     parser
 );
 
-pub fn std_print(vals: Vec<Value>) -> Result<Value, String> {
+pub fn std_print(vals: Vec<Value>) -> Result<Value, error::Error> {
     println!("{:?}", &vals);
 
     Ok(vals[0].clone())
