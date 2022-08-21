@@ -2,6 +2,8 @@ use crate::error::*;
 use crate::*;
 use std::cell::RefCell;
 use std::rc::Rc;
+pub mod value;
+pub use self::value::Value;
 
 pub struct Interpreter {
     pub env: Rc<RefCell<Environment>>,
@@ -83,7 +85,7 @@ impl Interpreter {
             Stmt::Class(identifier, _body) => {
                 self.env
                     .borrow_mut()
-                    .define(identifier.clone(), Value::Str(String::from(identifier)));
+                    .define(identifier.clone(), Value::Str(String::from(identifier)))?;
                 Ok(Value::Nil)
             }
 
