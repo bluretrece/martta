@@ -224,7 +224,6 @@ impl Interpreter {
             })) => {
                 let mut vals = Vec::new();
 
-                // Evaluate the arguments
                 for arg in args {
                     match self.expr_eval(arg) {
                         Ok(v) => vals.push(v),
@@ -232,7 +231,6 @@ impl Interpreter {
                     }
                 }
 
-                // Is it the function defined?
                 let function_defined = match self.env.borrow_mut().get_var(function.to_string()) {
                     Some(v) => v,
                     None => {

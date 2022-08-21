@@ -24,11 +24,10 @@ impl Environment {
 
     pub fn get_var(&mut self, name: String) -> Option<Value> {
         if let Some(value) = self.vals.get(&name).cloned() {
-            Some(value)
+            return Some(value);
         } else if let Some(enclosing) = &self.enclosing {
             return (*enclosing.borrow_mut()).get_var(name.clone());
-        } else {
-            None
         }
+        None
     }
 }
