@@ -1,10 +1,10 @@
-def a(n) {
+fn sum :: n {
   if n < 2 {
     return n;
   } else {
-    return a(n-1) + a(n-2);
+    return sum(n-1) + sum(n-2);
   }
 }
 
 let n=8;
-a(n)
+sum(n)
