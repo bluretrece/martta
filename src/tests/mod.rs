@@ -8,7 +8,7 @@ mod tests {
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
-        let input = "sum :: n {
+        let input = "fn sum :: n {
             if n < 2 {
                 return n;
             } else {
