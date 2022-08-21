@@ -1,4 +1,0 @@
-let a = 1;
-
-a = 4;
-println(a);

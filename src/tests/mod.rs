@@ -1,6 +1,23 @@
 #[cfg(test)]
 mod tests {
     use crate::*;
+    #[test]
+    fn anonymous_fn() {
+        let mut env = Environment::default();
+        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+            .unwrap();
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
+        let input = "let a = fn (n) => {
+            return n + 1
+        };
+
+        a(4);";
+
+        let source = parser::ProgParser::new().parse(&input).unwrap();
+        let res = interpreter.eval(&source);
+
+        assert_eq!(res, Ok(Value::Int(5)));
+    }
 
     #[test]
     fn fibonacci() {
