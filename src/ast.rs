@@ -1,4 +1,5 @@
 use crate::error::Error;
+use std::convert::From;
 
 #[derive(Clone, Debug)]
 pub enum Prog {
@@ -6,6 +7,45 @@ pub enum Prog {
 }
 
 pub type Block = Vec<Stmt>;
+
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+pub enum HirExpr {
+    Literal(Literal, Type),
+    Binary(Box<HirExpr>, Operator, Box<HirExpr>, Type),
+    Nothing,
+}
+
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+pub enum Type {
+    Primitive(Primitive),
+}
+
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+pub enum Primitive {
+    Int,
+    Bool,
+}
+
+impl From<HirExpr> for Type {
+    fn from(hir: HirExpr) -> Self {
+        match hir {
+            HirExpr::Literal(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
+            HirExpr::Literal(_, Type::Primitive(Primitive::Bool)) => {
+                Type::Primitive(Primitive::Bool)
+            }
+            HirExpr::Binary(_, _, _, Type::Primitive(Primitive::Int)) => {
+                Type::Primitive(Primitive::Int)
+            }
+            _ => unimplemented!(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+pub enum Literal {
+    Bool(bool),
+    Int(i32),
+}
 
 #[derive(Clone, Debug, PartialOrd, PartialEq)]
 pub enum Stmt {
