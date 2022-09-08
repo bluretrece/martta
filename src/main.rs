@@ -6,6 +6,7 @@ pub mod environment;
 pub mod error;
 pub mod interpreter;
 pub mod tests;
+pub mod type_checker;
 use ast::*;
 use environment::*;
 use interpreter::*;
