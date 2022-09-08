@@ -8,7 +8,7 @@ lalrpop_mod!(
     parser
 );
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Typechecker;
 impl Typechecker {
     pub fn typecheck(&mut self, program: &Prog) -> Result<HirExpr, Error> {
@@ -82,7 +82,7 @@ mod tests {
     #[test]
     fn hir_gets_parsed() {
         let source: Prog = parser::ProgParser::new().parse("34").unwrap();
-        let mut type_checker = Typechecker {};
+        let mut type_checker = Typechecker::default();
         let tc = type_checker.typecheck(&source).unwrap();
         assert_eq!(
             tc,
@@ -93,7 +93,7 @@ mod tests {
     #[test]
     fn type_is_int() {
         let source: Prog = parser::ProgParser::new().parse("34").unwrap();
-        let mut type_checker = Typechecker {};
+        let mut type_checker = Typechecker::default();
         let hir: Type = type_checker.typecheck(&source).unwrap().into();
         assert_eq!(hir, Type::Primitive(Primitive::Int));
     }
@@ -101,7 +101,7 @@ mod tests {
     #[test]
     fn binary_operation_is_int() {
         let source: Prog = parser::ProgParser::new().parse("3 + 3").unwrap();
-        let mut type_checker = Typechecker {};
+        let mut type_checker = Typechecker::default();
         let hir: Type = type_checker.typecheck(&source).unwrap().into();
         assert_eq!(hir, Type::Primitive(Primitive::Int));
     }
@@ -109,7 +109,7 @@ mod tests {
     #[should_panic]
     fn types_mismatch() {
         let source: Prog = parser::ProgParser::new().parse("3 + true").unwrap();
-        let mut type_checker = Typechecker {};
+        let mut type_checker = Typechecker::default();
         let hir: Type = type_checker.typecheck(&source).unwrap().into();
     }
 }
