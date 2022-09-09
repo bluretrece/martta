@@ -6,6 +6,8 @@ pub enum Error {
     ParsingError,
     #[error("Invalid operation: {0}")]
     InvalidOperation(String),
+    #[error("Types mismatch: {0}")]
+    TypeError(String),
 }
 
 impl From<String> for Error {
