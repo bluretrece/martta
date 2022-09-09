@@ -45,7 +45,7 @@ impl Typechecker {
                 let rhs_ = self.typecheck_expr(rhs)?;
 
                 let type_ = match op {
-                    Operator::Add => {
+                    Operator::Add | Operator::Sub | Operator::Div => {
                         let ty = self.unify(&lhs_.clone().into(), &rhs_.clone().into())?;
 
                         ty
@@ -105,11 +105,20 @@ mod tests {
         let hir: Type = type_checker.typecheck(&source).unwrap().into();
         assert_eq!(hir, Type::Primitive(Primitive::Int));
     }
+
     #[test]
     #[should_panic]
     fn types_mismatch() {
         let source: Prog = parser::ProgParser::new().parse("3 + true").unwrap();
         let mut type_checker = Typechecker::default();
         let hir: Type = type_checker.typecheck(&source).unwrap().into();
+    }
+
+    #[test]
+    fn sub_is_int() {
+        let source: Prog = parser::ProgParser::new().parse("184 - 42").unwrap();
+        let mut type_checker = Typechecker::default();
+        let hir: Type = type_checker.typecheck(&source).unwrap().into();
+        assert_eq!(hir, Type::Primitive(Primitive::Int));
     }
 }
