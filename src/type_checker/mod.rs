@@ -26,7 +26,9 @@ impl Typechecker {
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<HirExpr, Error> {
         match expr {
             Stmt::Expr(x) => self.typecheck_expr(x),
-            _ => unimplemented!("The type system does not support other expressions yet"),
+            _ => Err(Error::TypeError(
+                "The type system does not support other expressions yet".into(),
+            )),
         }
     }
 
@@ -50,7 +52,7 @@ impl Typechecker {
 
                         ty
                     }
-                    _ => unimplemented!("The type system does not support substraction yet"),
+                    _ => unimplemented!("Unimplemented type operator"),
                 };
 
                 Ok(HirExpr::Binary(
@@ -60,7 +62,9 @@ impl Typechecker {
                     type_,
                 ))
             }
-            _ => unimplemented!("The type system does not support this type yet"),
+            _ => Err(Error::TypeError(
+                "The type system does not support this type yet".into(),
+            )),
         }
     }
 
@@ -68,7 +72,7 @@ impl Typechecker {
         match (ty1, ty2) {
             (Type::Primitive(p1), Type::Primitive(p2)) if p1 == p2 => Ok(ty2.clone()),
             (Type::Primitive(p1), Type::Primitive(p2)) if p1 != p2 => {
-                panic!("Types mismatch")
+                Err(Error::TypeError("Types mismatch".into()))
             }
             (_, _) => unimplemented!(),
         }
