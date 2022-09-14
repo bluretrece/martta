@@ -10,6 +10,7 @@ pub mod type_checker;
 use ast::*;
 use environment::*;
 use interpreter::*;
+use type_checker::*;
 
 #[macro_use]
 extern crate lalrpop_util;
@@ -41,7 +42,9 @@ fn main() {
             break;
         }
         let source: Prog = parser::ProgParser::new().parse(&line).unwrap();
-        let res = interpreter.eval(&source).unwrap();
+        let mut tc = Typechecker::default();
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
         println!("{}", res);
     }
 }
