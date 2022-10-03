@@ -26,6 +26,10 @@ impl Typechecker {
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<HirExpr, Error> {
         match expr {
             Stmt::Expr(x) => self.typecheck_expr(x),
+            Stmt::IfElse(t1, t2, t3) => {
+                let ty1 = self.typecheck_expr(t1);
+                // assert_eq!(ty1, Type::Primitive(Primitive::Bool))
+            }
             _ => Err(Error::TypeError(
                 "The type system does not support other expressions yet".into(),
             )),
