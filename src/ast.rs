@@ -12,6 +12,7 @@ pub type Block = Vec<Stmt>;
 pub enum HirExpr {
     Literal(Literal, Type),
     Binary(Box<HirExpr>, Operator, Box<HirExpr>, Type),
+    IfElse(Box<HirExpr>, Box<HirExpr>, Box<HirExpr>, Type),
     Nothing,
 }
 
@@ -101,4 +102,23 @@ pub enum Operator {
     LessOrEqual,
     EqTo,
     SumTo,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expression_to_type() {
+        let ty1: Type =
+            HirExpr::Literal(Literal::Bool(true), Type::Primitive(Primitive::Bool)).into();
+        let expected = Type::Primitive(Primitive::Bool);
+        assert_eq!(ty1, expected);
+    }
+    #[test]
+    fn type_is_int() {
+        let ty1: Type = HirExpr::Literal(Literal::Int(80), Type::Primitive(Primitive::Int)).into();
+        let expected = Type::Primitive(Primitive::Int);
+        assert_eq!(ty1, expected);
+    }
 }

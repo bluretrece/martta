@@ -23,12 +23,41 @@ impl Typechecker {
         Ok(value)
     }
 
+    pub fn eval_block(&mut self, stmts: Vec<Stmt>) -> Result<HirExpr, Error> {
+        let mut value: HirExpr = HirExpr::Nothing;
+        let steps = || -> Result<HirExpr, Error> {
+            for statement in stmts {
+                value = self.stmt_eval(&statement)?
+            }
+            Ok(value)
+        };
+        let result = steps();
+
+        result
+    }
+
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<HirExpr, Error> {
         match expr {
             Stmt::Expr(x) => self.typecheck_expr(x),
             Stmt::IfElse(t1, t2, t3) => {
-                let ty1 = self.typecheck_expr(t1);
-                // assert_eq!(ty1, Type::Primitive(Primitive::Bool))
+                let h1 = self.typecheck_expr(t1)?;
+                let ty1: Type = self.typecheck_expr(t1)?.into();
+
+                assert_eq!(ty1, Type::Primitive(Primitive::Bool));
+
+                let ty2: Type = self.eval_block(t2.to_vec())?.into();
+                let ty3: Type = self.eval_block(t3.to_vec())?.into();
+                let h2 = self.eval_block(t2.clone())?;
+                let h3 = self.eval_block(t3.clone())?;
+
+                assert_eq!(ty2, ty3, "Types must match: {:?} /= {:?}", ty2, ty3);
+
+                Ok(HirExpr::IfElse(
+                    Box::new(h1),
+                    Box::new(h2),
+                    Box::new(h3),
+                    ty2,
+                ))
             }
             _ => Err(Error::TypeError(
                 "The type system does not support other expressions yet".into(),
