@@ -21,7 +21,7 @@ pub Stmt: Stmt = {
 pub TypeAnnotation: TypeAnnotation= {
     "int" => TypeAnnotation::Int,
     "bool" => TypeAnnotation::Bool,
-    "string" => TypeAnnotation:Str
+    "string" => TypeAnnotation::Str
 }
 
 pub ParamList: Vec<String> = {
