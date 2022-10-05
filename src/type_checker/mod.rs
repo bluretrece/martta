@@ -79,22 +79,14 @@ impl Typechecker {
         match expr {
             Stmt::Expr(x) => self.typecheck_expr(x),
             Stmt::Func(name, args, stmts, annotation) => {
-                // Stmt::Func(name, args, stmts) => {
-                //     let v = Value::Function(args.to_vec(), stmts.to_vec());
-
-                //     match self.env.borrow_mut().define(name.clone(), v) {
-                //         Ok(_) => Ok(Value::Nil),
-                //         Err(e) => Err(Error::InvalidOperation(e)),
-                //     }
-                // }
-                let expected_type = self.annotation_type(annotation.clone());
-                let block_type: Type = self.eval_block(stmts.to_vec())?.into();
+                let return_type = self.annotation_type(annotation.clone());
+                let body_type: Type = self.eval_block(stmts.to_vec())?.into();
                 let block_value = self.eval_block(stmts.to_vec())?;
 
                 assert_eq!(
-                    expected_type, block_type,
+                    return_type, body_type,
                     "Types mismatch. Expected {:?} as return type, but got {:?} instead.",
-                    expected_type, block_type
+                    return_type, body_type
                 );
 
                 println!("Context: {:?} ", self.ctx.values);
@@ -103,7 +95,7 @@ impl Typechecker {
                     name.to_owned(),
                     args.to_vec(),
                     vec![block_value],
-                    expected_type,
+                    return_type,
                 ))
             }
             Stmt::Assign(name, rhs, annotation) => {
