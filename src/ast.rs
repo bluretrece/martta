@@ -12,7 +12,7 @@ pub type Block = Vec<Stmt>;
 pub enum HirExpr {
     Literal(Literal, Type),
     Binary(Box<HirExpr>, Operator, Box<HirExpr>, Type),
-    IfElse(Box<HirExpr>, Box<HirExpr>, Box<HirExpr>, Type),
+    IfElse(Box<HirExpr>, Vec<HirExpr>, Vec<HirExpr>, Type),
     Nothing,
 }
 

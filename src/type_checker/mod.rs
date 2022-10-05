@@ -52,12 +52,7 @@ impl Typechecker {
 
                 assert_eq!(ty2, ty3, "Types must match: {:?} /= {:?}", ty2, ty3);
 
-                Ok(HirExpr::IfElse(
-                    Box::new(h1),
-                    Box::new(h2),
-                    Box::new(h3),
-                    ty2,
-                ))
+                Ok(HirExpr::IfElse(Box::new(h1), vec![h2], vec![h3], ty2))
             }
             _ => Err(Error::TypeError(
                 "The type system does not support other expressions yet".into(),
