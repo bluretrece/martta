@@ -7,14 +7,16 @@ pub enum Prog {
 }
 
 pub type Block = Vec<Stmt>;
+pub type HirBlock = Vec<HirExpr>;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum HirExpr {
     Literal(Literal, Type),
     Binary(Box<HirExpr>, Operator, Box<HirExpr>, Type),
     Assign(String, Box<HirExpr>, Type),
-    Var(String),
+    Var(String, Type),
     IfElse(Box<HirExpr>, Vec<HirExpr>, Vec<HirExpr>, Type),
+    Function(String, Vec<String>, HirBlock, Type),
     Nothing,
 }
 
@@ -27,12 +29,14 @@ pub enum Type {
 pub enum Primitive {
     Int,
     Bool,
+    Str,
 }
 
 impl From<HirExpr> for Type {
     fn from(hir: HirExpr) -> Self {
         match hir {
             HirExpr::Literal(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
+            HirExpr::Literal(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
             HirExpr::Literal(_, Type::Primitive(Primitive::Bool)) => {
                 Type::Primitive(Primitive::Bool)
             }
@@ -42,7 +46,16 @@ impl From<HirExpr> for Type {
             HirExpr::Binary(_, _, _, Type::Primitive(Primitive::Bool)) => {
                 Type::Primitive(Primitive::Bool)
             }
-            _ => unimplemented!(),
+            HirExpr::Function(_, _, _, Type::Primitive(Primitive::Int)) => {
+                Type::Primitive(Primitive::Int)
+            }
+            HirExpr::Function(_, _, _, Type::Primitive(Primitive::Bool)) => {
+                Type::Primitive(Primitive::Bool)
+            }
+            // HirExpr::Var(v) => Type::Primitive(Primitive::Int),
+            HirExpr::Var(v, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
+            HirExpr::Var(v, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
+            _ => unimplemented!("{:?}", hir),
         }
     }
 }
@@ -51,6 +64,7 @@ impl From<HirExpr> for Type {
 pub enum Literal {
     Bool(bool),
     Int(i32),
+    String(String),
 }
 
 #[derive(Clone, Debug, PartialOrd, PartialEq)]
@@ -62,7 +76,7 @@ pub enum Stmt {
     IfStatement(Expr, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
     IfElse(Expr, Vec<Stmt>, Vec<Stmt>),
-    Func(String, Vec<String>, Block),
+    Func(String, Vec<String>, Block, TypeAnnotation),
     Class(String, Block),
 }
 

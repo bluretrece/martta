@@ -65,8 +65,8 @@ impl Interpreter {
 
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<Value, Error> {
         match expr {
-            // Stmt::Expr(e) => self.expr_eval(e),
             _ => todo!(),
+            // Stmt::Expr(e) => self.expr_eval(e),
             // Stmt::Return(e) => {
             //     let value = match self.expr_eval(e) {
             //         Ok(v) => v,
@@ -82,13 +82,6 @@ impl Interpreter {
             //         Ok(_) => Ok(Value::Nil),
             //         Err(e) => Err(Error::InvalidOperation(e)),
             //     }
-            // }
-
-            // Stmt::Class(identifier, _body) => {
-            //     self.env
-            //         .borrow_mut()
-            //         .define(identifier.clone(), Value::Str(String::from(identifier)))?;
-            //     Ok(Value::Nil)
             // }
 
             // Stmt::Assign(name, rhs) => match self.expr_eval(rhs) {
@@ -193,6 +186,15 @@ impl Interpreter {
             }
             HirExpr::Literal(Literal::Int(l), _) => Ok(Value::Int(*l)),
             HirExpr::Literal(Literal::Bool(b), _) => Ok(Value::Bool(*b)),
+            HirExpr::Literal(Literal::String(s), _) => Ok(Value::Str(s.to_string())),
+            HirExpr::Function(name, args, stmts, _) => {
+                let v = Value::Function(args.to_vec(), stmts.to_vec());
+
+                match self.env.borrow_mut().define(name.clone(), v) {
+                    Ok(_) => Ok(Value::Nil),
+                    Err(e) => Err(Error::InvalidOperation(e)),
+                }
+            }
             HirExpr::IfElse(cond, stmts, estmt, _) => match self.expr_eval(cond) {
                 Ok(b) => match b {
                     Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
@@ -211,7 +213,7 @@ impl Interpreter {
                 Err(e) => Err(e),
             },
             HirExpr::Nothing => Ok(Value::Nil),
-            HirExpr::Var(name) => match self.env.borrow_mut().get_var(name.to_string()) {
+            HirExpr::Var(name, _) => match self.env.borrow_mut().get_var(name.to_string()) {
                 Some(v) => Ok(v),
                 None => Err(Error::InvalidOperation(format!(
                     "'{}' is not defined",
@@ -219,7 +221,6 @@ impl Interpreter {
                 ))),
             },
             _ => unimplemented!(),
-            // Expr::Str(s) => Ok(Value::Str(s.to_string())),
             // Expr::List(list) => {
             //     let values = match self.expr_evals(list) {
             //         Ok(v) => v,
@@ -231,15 +232,6 @@ impl Interpreter {
             // Expr::Function(args, stmts) => {
             //     let f = Value::Function(args.to_vec(), stmts.to_vec());
             //     Ok(f)
-            // }
-            // Expr::Call(Call::Class(Class { identifier: name })) => {
-            //     match self.env.borrow_mut().get_var(name.to_string()) {
-            //         Some(v) => Ok(v),
-            //         None => Err(Error::InvalidOperation(format!(
-            //             "'{}' is not defined",
-            //             name
-            //         ))),
-            //     }
             // }
             // Expr::Call(Call::Function(Function {
             //     func: function,

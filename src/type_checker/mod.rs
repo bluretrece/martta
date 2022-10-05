@@ -1,5 +1,6 @@
 use crate::ast::*;
 use crate::error::*;
+use std::collections::HashMap;
 
 lalrpop_mod!(
     #[allow(clippy::all)]
@@ -8,9 +9,38 @@ lalrpop_mod!(
     parser
 );
 
+#[derive(Debug, Default, Clone)]
+pub struct Context {
+    pub values: HashMap<String, Type>,
+    // pub enclosing: Option<Rc<RefCell<Environment>>>,
+}
+
+impl Context {
+    pub fn define(&mut self, name: String, type_: Type) -> Result<(), String> {
+        self.values.insert(name, type_);
+        Ok(())
+    }
+
+    pub fn lookup(&mut self, name: String) -> Option<Type> {
+        if let Some(value) = self.values.get(&name).cloned() {
+            return Some(value);
+        }
+        None
+    }
+}
+
 #[derive(Debug, Default)]
-pub struct Typechecker;
+pub struct Typechecker {
+    ctx: Context,
+}
+
 impl Typechecker {
+    pub fn new() -> Self {
+        Self {
+            ctx: Context::default(),
+        }
+    }
+
     pub fn typecheck(&mut self, program: &Prog) -> Result<HirExpr, Error> {
         let mut value = HirExpr::Nothing;
         match program {
@@ -40,6 +70,7 @@ impl Typechecker {
         match annotation {
             TypeAnnotation::Int => Type::Primitive(Primitive::Int),
             TypeAnnotation::Bool => Type::Primitive(Primitive::Bool),
+            TypeAnnotation::Str => Type::Primitive(Primitive::Str),
             _ => unimplemented!("String type annotations are not yet supported"),
         }
     }
@@ -47,11 +78,42 @@ impl Typechecker {
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<HirExpr, Error> {
         match expr {
             Stmt::Expr(x) => self.typecheck_expr(x),
+            Stmt::Func(name, args, stmts, annotation) => {
+                // Stmt::Func(name, args, stmts) => {
+                //     let v = Value::Function(args.to_vec(), stmts.to_vec());
+
+                //     match self.env.borrow_mut().define(name.clone(), v) {
+                //         Ok(_) => Ok(Value::Nil),
+                //         Err(e) => Err(Error::InvalidOperation(e)),
+                //     }
+                // }
+                let expected_type = self.annotation_type(annotation.clone());
+                let block_type: Type = self.eval_block(stmts.to_vec())?.into();
+                let block_value = self.eval_block(stmts.to_vec())?;
+
+                assert_eq!(
+                    expected_type, block_type,
+                    "Types mismatch. Expected {:?} as return type, but got {:?} instead.",
+                    expected_type, block_type
+                );
+
+                println!("Context: {:?} ", self.ctx.values);
+
+                Ok(HirExpr::Function(
+                    name.to_owned(),
+                    args.to_vec(),
+                    vec![block_value],
+                    expected_type,
+                ))
+            }
             Stmt::Assign(name, rhs, annotation) => {
-                // typechecks if let a: int = 12; is correct
                 let type_: Type = self.typecheck_expr(rhs)?.into();
                 let expr_ = self.typecheck_expr(rhs)?;
                 let expected = self.annotation_type(annotation.clone());
+
+                self.ctx.define(name.to_string(), type_.clone());
+
+                println!("Context state: {:?}", self.ctx.values);
 
                 assert_eq!(
                     type_, expected,
@@ -92,7 +154,18 @@ impl Typechecker {
                 Literal::Bool(*literal),
                 Type::Primitive(Primitive::Bool),
             )),
-            Expr::Var(s) => Ok(HirExpr::Var(s.to_string())),
+            Expr::Var(v) => {
+                let type_ = match self.ctx.lookup(v.to_string()) {
+                    Some(t) => t,
+                    None => Type::Primitive(Primitive::Int),
+                };
+
+                Ok(HirExpr::Var(v.to_string(), type_))
+            }
+            Expr::Str(s) => Ok(HirExpr::Literal(
+                Literal::String(s.to_string()),
+                Type::Primitive(Primitive::Str),
+            )),
             Expr::Binary(lhs, op, rhs) => {
                 let lhs_ = self.typecheck_expr(lhs)?;
                 let rhs_ = self.typecheck_expr(rhs)?;
@@ -128,7 +201,7 @@ impl Typechecker {
         match (ty1, ty2) {
             (Type::Primitive(p1), Type::Primitive(p2)) if p1 == p2 => Ok(ty2.clone()),
             (Type::Primitive(p1), Type::Primitive(p2)) if p1 != p2 => {
-                Err(Error::TypeError("Types mismatch".into()))
+                Err(Error::TypeError("Types do not unify".into()))
             }
             (_, _) => unimplemented!(),
         }
