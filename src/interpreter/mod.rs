@@ -211,15 +211,15 @@ impl Interpreter {
                 Err(e) => Err(e),
             },
             HirExpr::Nothing => Ok(Value::Nil),
+            HirExpr::Var(name) => match self.env.borrow_mut().get_var(name.to_string()) {
+                Some(v) => Ok(v),
+                None => Err(Error::InvalidOperation(format!(
+                    "'{}' is not defined",
+                    name
+                ))),
+            },
             _ => unimplemented!(),
             // Expr::Str(s) => Ok(Value::Str(s.to_string())),
-            // Expr::Var(name) => match self.env.borrow_mut().get_var(name.to_string()) {
-            //     Some(v) => Ok(v),
-            //     None => Err(Error::InvalidOperation(format!(
-            //         "'{}' is not defined",
-            //         name
-            //     ))),
-            // },
             // Expr::List(list) => {
             //     let values = match self.expr_evals(list) {
             //         Ok(v) => v,

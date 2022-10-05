@@ -13,6 +13,7 @@ pub enum HirExpr {
     Literal(Literal, Type),
     Binary(Box<HirExpr>, Operator, Box<HirExpr>, Type),
     Assign(String, Box<HirExpr>, Type),
+    Var(String),
     IfElse(Box<HirExpr>, Vec<HirExpr>, Vec<HirExpr>, Type),
     Nothing,
 }

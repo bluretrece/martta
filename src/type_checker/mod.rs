@@ -92,6 +92,7 @@ impl Typechecker {
                 Literal::Bool(*literal),
                 Type::Primitive(Primitive::Bool),
             )),
+            Expr::Var(s) => Ok(HirExpr::Var(s.to_string())),
             Expr::Binary(lhs, op, rhs) => {
                 let lhs_ = self.typecheck_expr(lhs)?;
                 let rhs_ = self.typecheck_expr(rhs)?;
