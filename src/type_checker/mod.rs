@@ -36,9 +36,31 @@ impl Typechecker {
         result
     }
 
+    pub fn annotation_type(&self, annotation: TypeAnnotation) -> Type {
+        match annotation {
+            TypeAnnotation::Int => Type::Primitive(Primitive::Int),
+            TypeAnnotation::Bool => Type::Primitive(Primitive::Bool),
+            _ => unimplemented!("String type annotations are not yet supported"),
+        }
+    }
+
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<HirExpr, Error> {
         match expr {
             Stmt::Expr(x) => self.typecheck_expr(x),
+            Stmt::Assign(name, rhs, annotation) => {
+                // typechecks if let a: int = 12; is correct
+                let type_: Type = self.typecheck_expr(rhs)?.into();
+                let expr_ = self.typecheck_expr(rhs)?;
+                let expected = self.annotation_type(annotation.clone());
+
+                assert_eq!(
+                    type_, expected,
+                    "Types mismatch. Expected: {:?} but got {:?}",
+                    expected, type_
+                );
+
+                Ok(HirExpr::Assign(String::from(name), Box::new(expr_), type_))
+            }
             Stmt::IfElse(t1, t2, t3) => {
                 let h1 = self.typecheck_expr(t1)?;
                 let ty1: Type = self.typecheck_expr(t1)?.into();
@@ -80,7 +102,11 @@ impl Typechecker {
 
                         ty
                     }
-                    Operator::EqTo => Type::Primitive(Primitive::Bool),
+                    Operator::EqTo
+                    | Operator::Or
+                    | Operator::And
+                    | Operator::LessThan
+                    | Operator::GreaterThan => Type::Primitive(Primitive::Bool),
                     _ => unimplemented!("Unimplemented type operator"),
                 };
 

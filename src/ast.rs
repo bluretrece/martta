@@ -12,6 +12,7 @@ pub type Block = Vec<Stmt>;
 pub enum HirExpr {
     Literal(Literal, Type),
     Binary(Box<HirExpr>, Operator, Box<HirExpr>, Type),
+    Assign(String, Box<HirExpr>, Type),
     IfElse(Box<HirExpr>, Vec<HirExpr>, Vec<HirExpr>, Type),
     Nothing,
 }
@@ -55,7 +56,7 @@ pub enum Literal {
 pub enum Stmt {
     Expr(Expr),
     Return(Expr),
-    Assign(String, Expr),
+    Assign(String, Expr, TypeAnnotation),
     ReAssign(String, Expr),
     IfStatement(Expr, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
@@ -105,6 +106,13 @@ pub enum Operator {
     LessOrEqual,
     EqTo,
     SumTo,
+}
+
+#[derive(Clone, Debug, PartialOrd, PartialEq)]
+pub enum TypeAnnotation {
+    Int,
+    Bool,
+    Str,
 }
 
 #[cfg(test)]

@@ -9,13 +9,19 @@ pub Prog: Prog = {
 
 pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
-    "let" <name:Ident> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs),
+    "let" <name:Ident> ":"<t:TypeAnnotation> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs, t),
     <variable:Ident> "=" <rhs:Expr> ";" => Stmt::ReAssign(variable, rhs),
     "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
     "fn" <i:Ident> "::" <args:ParamList> <stmts:Block> => Stmt::Func(i, args, stmts),
     "class" <name: Ident> <stmts:Block> => Stmt::Class(name, stmts),
     "return" <expr:Expr> ";"? => Stmt::Return(expr),
     <ifstmt:IfStmt> => ifstmt,
+}
+
+pub TypeAnnotation: TypeAnnotation= {
+    "int" => TypeAnnotation::Int,
+    "bool" => TypeAnnotation::Bool,
+    "string" => TypeAnnotation:Str
 }
 
 pub ParamList: Vec<String> = {

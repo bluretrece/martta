@@ -203,78 +203,85 @@ impl Interpreter {
                     "Expression must be boolean".to_string(),
                 )),
             },
+            HirExpr::Assign(name, rhs, _) => match self.expr_eval(rhs) {
+                Ok(v) => {
+                    self.env.borrow_mut().define(name.to_string(), v)?;
+                    Ok(Value::Nil)
+                }
+                Err(e) => Err(e),
+            },
             HirExpr::Nothing => Ok(Value::Nil),
-            _ => unimplemented!(), // HirExpr::Bool(b) => Ok(Value::Bool(*b)),
-                                   // Expr::Str(s) => Ok(Value::Str(s.to_string())),
-                                   // Expr::Var(name) => match self.env.borrow_mut().get_var(name.to_string()) {
-                                   //     Some(v) => Ok(v),
-                                   //     None => Err(Error::InvalidOperation(format!(
-                                   //         "'{}' is not defined",
-                                   //         name
-                                   //     ))),
-                                   // },
-                                   // Expr::List(list) => {
-                                   //     let values = match self.expr_evals(list) {
-                                   //         Ok(v) => v,
-                                   //         Err(e) => return Err(e),
-                                   //     };
+            _ => unimplemented!(),
+            // Expr::Str(s) => Ok(Value::Str(s.to_string())),
+            // Expr::Var(name) => match self.env.borrow_mut().get_var(name.to_string()) {
+            //     Some(v) => Ok(v),
+            //     None => Err(Error::InvalidOperation(format!(
+            //         "'{}' is not defined",
+            //         name
+            //     ))),
+            // },
+            // Expr::List(list) => {
+            //     let values = match self.expr_evals(list) {
+            //         Ok(v) => v,
+            //         Err(e) => return Err(e),
+            //     };
 
-                                   //     Ok(Value::List(values))
-                                   // }
-                                   // Expr::Function(args, stmts) => {
-                                   //     let f = Value::Function(args.to_vec(), stmts.to_vec());
-                                   //     Ok(f)
-                                   // }
-                                   // Expr::Call(Call::Class(Class { identifier: name })) => {
-                                   //     match self.env.borrow_mut().get_var(name.to_string()) {
-                                   //         Some(v) => Ok(v),
-                                   //         None => Err(Error::InvalidOperation(format!(
-                                   //             "'{}' is not defined",
-                                   //             name
-                                   //         ))),
-                                   //     }
-                                   // }
-                                   // Expr::Call(Call::Function(Function {
-                                   //     func: function,
-                                   //     args,
-                                   // })) => {
-                                   //     let mut vals = Vec::new();
+            //     Ok(Value::List(values))
+            // }
+            // Expr::Function(args, stmts) => {
+            //     let f = Value::Function(args.to_vec(), stmts.to_vec());
+            //     Ok(f)
+            // }
+            // Expr::Call(Call::Class(Class { identifier: name })) => {
+            //     match self.env.borrow_mut().get_var(name.to_string()) {
+            //         Some(v) => Ok(v),
+            //         None => Err(Error::InvalidOperation(format!(
+            //             "'{}' is not defined",
+            //             name
+            //         ))),
+            //     }
+            // }
+            // Expr::Call(Call::Function(Function {
+            //     func: function,
+            //     args,
+            // })) => {
+            //     let mut vals = Vec::new();
 
-                                   //     for arg in args {
-                                   //         match self.expr_eval(arg) {
-                                   //             Ok(v) => vals.push(v),
-                                   //             Err(e) => return Err(e),
-                                   //         }
-                                   //     }
+            //     for arg in args {
+            //         match self.expr_eval(arg) {
+            //             Ok(v) => vals.push(v),
+            //             Err(e) => return Err(e),
+            //         }
+            //     }
 
-                                   //     let function_defined = match self.env.borrow_mut().get_var(function.to_string()) {
-                                   //         Some(v) => v,
-                                   //         None => {
-                                   //             return Err(Error::InvalidOperation(format!(
-                                   //                 "Function '{}' is not defined",
-                                   //                 &function
-                                   //             )))
-                                   //         }
-                                   //     };
+            //     let function_defined = match self.env.borrow_mut().get_var(function.to_string()) {
+            //         Some(v) => v,
+            //         None => {
+            //             return Err(Error::InvalidOperation(format!(
+            //                 "Function '{}' is not defined",
+            //                 &function
+            //             )))
+            //         }
+            //     };
 
-                                   //     match function_defined {
-                                   //         Value::BuiltinFunction(f) => f(vals),
-                                   //         Value::Function(params, stmts) => {
-                                   //             let environment =
-                                   //                 Rc::new(RefCell::new(Environment::with_ref(self.env.clone())));
-                                   //             for (param, argument) in params.iter().zip(vals.iter()) {
-                                   //                 environment
-                                   //                     .borrow_mut()
-                                   //                     .define(param.clone(), argument.clone())?;
-                                   //             }
-                                   //             self.eval_block(stmts, environment)
-                                   //         }
-                                   //         _ => Err(Error::InvalidOperation(format!(
-                                   //             "'{}' isn't a function",
-                                   //             function
-                                   //         ))),
-                                   //     }
-                                   // }
+            //     match function_defined {
+            //         Value::BuiltinFunction(f) => f(vals),
+            //         Value::Function(params, stmts) => {
+            //             let environment =
+            //                 Rc::new(RefCell::new(Environment::with_ref(self.env.clone())));
+            //             for (param, argument) in params.iter().zip(vals.iter()) {
+            //                 environment
+            //                     .borrow_mut()
+            //                     .define(param.clone(), argument.clone())?;
+            //             }
+            //             self.eval_block(stmts, environment)
+            //         }
+            //         _ => Err(Error::InvalidOperation(format!(
+            //             "'{}' isn't a function",
+            //             function
+            //         ))),
+            //     }
+            // }
         }
     }
 }
