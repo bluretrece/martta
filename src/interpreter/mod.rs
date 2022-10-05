@@ -28,7 +28,7 @@ impl Interpreter {
 
     pub fn eval_block(
         &mut self,
-        stmts: Vec<Stmt>,
+        stmts: Vec<HirExpr>,
         env: Rc<RefCell<Environment>>,
     ) -> Result<Value, Error> {
         let mut value: Value = Value::Nil;
@@ -36,7 +36,8 @@ impl Interpreter {
         let steps = || -> Result<Value, Error> {
             self.env = env;
             for statement in stmts {
-                value = self.stmt_eval(&statement)?
+                // self.stmt_eval?
+                value = self.expr_eval(&statement)?
             }
             Ok(value)
         };
@@ -192,6 +193,16 @@ impl Interpreter {
             }
             HirExpr::Literal(Literal::Int(l), _) => Ok(Value::Int(*l)),
             HirExpr::Literal(Literal::Bool(b), _) => Ok(Value::Bool(*b)),
+            HirExpr::IfElse(cond, stmts, estmt, _) => match self.expr_eval(cond) {
+                Ok(b) => match b {
+                    Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
+                    Value::Bool(false) => self.eval_block(estmt.to_vec(), self.env.clone()),
+                    _ => unreachable!(),
+                },
+                Err(_) => Err(Error::InvalidOperation(
+                    "Expression must be boolean".to_string(),
+                )),
+            },
             HirExpr::Nothing => Ok(Value::Nil),
             _ => unimplemented!(), // HirExpr::Bool(b) => Ok(Value::Bool(*b)),
                                    // Expr::Str(s) => Ok(Value::Str(s.to_string())),
