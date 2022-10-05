@@ -37,6 +37,9 @@ impl From<HirExpr> for Type {
             HirExpr::Binary(_, _, _, Type::Primitive(Primitive::Int)) => {
                 Type::Primitive(Primitive::Int)
             }
+            HirExpr::Binary(_, _, _, Type::Primitive(Primitive::Bool)) => {
+                Type::Primitive(Primitive::Bool)
+            }
             _ => unimplemented!(),
         }
     }

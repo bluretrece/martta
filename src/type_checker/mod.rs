@@ -80,6 +80,7 @@ impl Typechecker {
 
                         ty
                     }
+                    Operator::EqTo => Type::Primitive(Primitive::Bool),
                     _ => unimplemented!("Unimplemented type operator"),
                 };
 
