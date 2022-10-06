@@ -195,6 +195,16 @@ impl Interpreter {
                     Err(e) => Err(Error::InvalidOperation(e)),
                 }
             }
+            HirExpr::IfStatement(cond, stmts, _) => match self.expr_eval(cond) {
+                Ok(b) => match b {
+                    Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
+                    Value::Bool(false) => Ok(Value::Nil),
+                    _ => unreachable!(),
+                },
+                Err(_) => Err(Error::InvalidOperation(
+                    "Expression must be boolean".to_string(),
+                )),
+            },
             HirExpr::IfElse(cond, stmts, estmt, _) => match self.expr_eval(cond) {
                 Ok(b) => match b {
                     Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),

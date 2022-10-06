@@ -16,6 +16,7 @@ pub enum HirExpr {
     Assign(String, Box<HirExpr>, Type),
     Var(String, Type),
     IfElse(Box<HirExpr>, Vec<HirExpr>, Vec<HirExpr>, Type),
+    IfStatement(Box<HirExpr>, Vec<HirExpr>, Type),
     Function(String, Vec<String>, HirBlock, Type),
     Nothing,
 }

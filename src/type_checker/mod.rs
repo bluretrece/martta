@@ -123,6 +123,19 @@ impl Typechecker {
 
                 Ok(HirExpr::Assign(String::from(name), Box::new(expr_), type_))
             }
+            Stmt::IfStatement(cond, stmts) => {
+                let type_: Type = self.typecheck_expr(cond)?.into();
+                let cond = self.typecheck_expr(cond)?;
+                let stmts = self.eval_block(stmts.clone())?;
+
+                assert_eq!(type_, Type::Primitive(Primitive::Bool));
+
+                Ok(HirExpr::IfStatement(
+                    Box::new(cond.clone()),
+                    vec![stmts],
+                    type_,
+                ))
+            }
             Stmt::IfElse(t1, t2, t3) => {
                 let h1 = self.typecheck_expr(t1)?;
                 let ty1: Type = self.typecheck_expr(t1)?.into();
