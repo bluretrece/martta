@@ -115,6 +115,12 @@ impl Typechecker {
 
                 Ok(HirExpr::Assign(String::from(name), Box::new(expr_), type_))
             }
+            Stmt::Return(e) => {
+                let expr = self.typecheck_expr(e)?;
+                let type_: Type = self.typecheck_expr(e)?.into();
+
+                Ok(HirExpr::Return(Box::new(expr), type_))
+            }
             Stmt::IfStatement(cond, stmts) => {
                 let type_: Type = self.typecheck_expr(cond)?.into();
                 let cond = self.typecheck_expr(cond)?;

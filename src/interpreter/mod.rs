@@ -215,6 +215,13 @@ impl Interpreter {
                     "Expression must be boolean".to_string(),
                 )),
             },
+            HirExpr::Return(e, _) => {
+                let value = match self.expr_eval(e) {
+                    Ok(v) => v,
+                    Err(e) => return Err(e),
+                };
+                Ok(value)
+            }
             HirExpr::Assign(name, rhs, _) => match self.expr_eval(rhs) {
                 Ok(v) => {
                     self.env.borrow_mut().define(name.to_string(), v)?;

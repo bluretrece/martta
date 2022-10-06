@@ -18,6 +18,7 @@ pub enum HirExpr {
     IfElse(Box<HirExpr>, Vec<HirExpr>, Vec<HirExpr>, Type),
     IfStatement(Box<HirExpr>, Vec<HirExpr>, Type),
     Function(String, Vec<String>, HirBlock, Type),
+    Return(Box<HirExpr>, Type),
     Call(HirFunction),
     Nothing,
 }
@@ -60,7 +61,14 @@ impl From<HirExpr> for Type {
             // HirExpr::Var(v) => Type::Primitive(Primitive::Int),
             HirExpr::Var(v, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
             HirExpr::Var(v, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
+            HirExpr::Return(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
+            HirExpr::Return(_, Type::Primitive(Primitive::Bool)) => {
+                Type::Primitive(Primitive::Bool)
+            }
+            HirExpr::Return(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
+            // thread 'main' panicked at 'not implemented: Return(Binary(Var("a", Primitive(Int)), Add, Var("b", Primitive(Int)), Primitive(Int)))', src/ast.rs:64:18
             _ => unimplemented!("{:?}", hir),
+            // _ => Type::Primitive(Primitive::Int),
         }
     }
 }
