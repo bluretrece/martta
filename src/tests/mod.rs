@@ -4,6 +4,7 @@ mod tests {
     #[test]
     fn anonymous_fn() {
         let mut env = Environment::default();
+        let mut tc = Typechecker::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
@@ -12,20 +13,19 @@ mod tests {
         };
 
         a(4);";
-
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Int(5)));
+        assert_eq!(res, Value::Int(5));
     }
 
     #[test]
     fn fibonacci() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
-            .unwrap();
+        let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
-        let input = "fn sum :: n {
+        let input = "fn sum :: n => int {
             if n < 2 {
                 return n;
             } else {
@@ -33,33 +33,35 @@ mod tests {
             }
         }
 
-        let n=8;
-        sum(n)";
-
+        let n: int = 8;
+        sum(n);";
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Int(21)));
+        assert_eq!(res, Value::Int(21));
     }
 
     #[test]
     #[should_panic]
     fn bool_operation() {
-        let mut env = Environment::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
-            .unwrap();
+        let env = Environment::default();
+        let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
+
         let input = "true && 2";
-
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let res = interpreter.eval(&source);
 
-        assert_eq!(res, Ok(Value::Int(1)));
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
+
+        assert_eq!(res, Value::Int(1));
     }
 
     #[test]
     fn re_assignment() {
         let mut env = Environment::default();
+        let mut tc = Typechecker::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
@@ -68,101 +70,115 @@ mod tests {
 
             a = 4;
             println(a);";
-
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Int(4)));
+        assert_eq!(res, Value::Int(4));
     }
 
     #[test]
     fn int_parsing() {
         let env = Environment::default();
+        let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "197";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Int(197)));
+        assert_eq!(res, Value::Int(197));
     }
 
     #[test]
     fn bool_parsing() {
         let env = Environment::default();
+        let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "true";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
-
-        assert_eq!(res, Ok(Value::Bool(true)));
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
+        assert_eq!(res, Value::Bool(true));
     }
 
     #[test]
     fn int_printing() {
         let mut env = Environment::default();
+        let mut tc = Typechecker::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "println(40 + 6);";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Int(46)));
+        assert_eq!(res, Value::Int(46));
     }
 
     #[test]
     fn assignment_and_println() {
         let env = Environment::default();
+        let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
-        let input = "let x = 5;\n let a = x;\n a;";
+        let input = "let x: int = 5;\n let a: int = x;\n a;";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Int(5)));
+        assert_eq!(res, Value::Int(5));
     }
 
     #[test]
     fn false_bool_parsing() {
         let env = Environment::default();
+        let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "false";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Bool(false)));
+        assert_eq!(res, Value::Bool(false));
     }
 
     #[test]
     fn binary_bool_assignment() {
         let mut env = Environment::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
-            .unwrap();
-        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
-        let input = "let b = false && false; b;";
-        let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
+        let mut tc = Typechecker::default();
 
-        assert_eq!(res, Ok(Value::Bool(false)));
+        let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
+        let input = "let b: bool = false && false;
+            b";
+        let source = parser::ProgParser::new().parse(input).unwrap();
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
+
+        assert_eq!(res, Value::Bool(false));
     }
 
     #[test]
     fn if_should_not_evaluate() {
         let mut env = Environment::default();
+        let mut tc = Typechecker::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if false || false {
 			99;
 		    }";
-        let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
 
-        assert_eq!(res, Ok(Value::Nil));
+        let source = parser::ProgParser::new().parse(input).unwrap();
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
+        assert_eq!(res, Value::Nil);
     }
 
     #[test]
     fn if_should_evaluate() {
         let mut env = Environment::default();
+        let mut tc = Typechecker::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
@@ -172,14 +188,16 @@ mod tests {
 			println(86);
 		     }";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Int(99)));
+        assert_eq!(res, Value::Int(99));
     }
 
     #[test]
     fn else_evaluation() {
         let mut env = Environment::default();
+        let mut tc = Typechecker::default();
         env.define("println".to_string(), Value::BuiltinFunction(std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
@@ -189,8 +207,9 @@ mod tests {
 			println(86);
 		     }";
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let res = interpreter.eval(&source);
+        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+        let res = interpreter.expr_eval(&tc_value).unwrap();
 
-        assert_eq!(res, Ok(Value::Int(86)));
+        assert_eq!(res, Value::Int(86));
     }
 }

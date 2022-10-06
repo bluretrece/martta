@@ -36,6 +36,7 @@ pub enum Primitive {
     Int,
     Bool,
     Str,
+    Unit,
 }
 
 impl From<HirExpr> for Type {
@@ -55,10 +56,11 @@ impl From<HirExpr> for Type {
             HirExpr::Function(_, _, _, Type::Primitive(Primitive::Int)) => {
                 Type::Primitive(Primitive::Int)
             }
-            HirExpr::Function(_, _, _, Type::Primitive(Primitive::Bool)) => {
-                Type::Primitive(Primitive::Bool)
+            HirExpr::Function(_, _, _, Type::Primitive(Primitive::Int)) => {
+                Type::Primitive(Primitive::Int)
             }
-            // HirExpr::Var(v) => Type::Primitive(Primitive::Int),
+            // Not possible. Consider let bar: int = foo(); where foo returns an int.
+            HirExpr::Call(HirFunction(builtin, _expr)) => Type::Primitive(Primitive::Unit),
             HirExpr::Var(v, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
             HirExpr::Var(v, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
             HirExpr::Return(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
@@ -66,9 +68,7 @@ impl From<HirExpr> for Type {
                 Type::Primitive(Primitive::Bool)
             }
             HirExpr::Return(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
-            // thread 'main' panicked at 'not implemented: Return(Binary(Var("a", Primitive(Int)), Add, Var("b", Primitive(Int)), Primitive(Int)))', src/ast.rs:64:18
             _ => unimplemented!("{:?}", hir),
-            // _ => Type::Primitive(Primitive::Int),
         }
     }
 }
