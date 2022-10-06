@@ -204,6 +204,21 @@ impl Typechecker {
                     type_,
                 ))
             }
+            Expr::Call(Call::Function(Function {
+                func: function,
+                args,
+            })) => {
+                let mut vals = Vec::new();
+
+                for arg in args {
+                    match self.typecheck_expr(arg) {
+                        Ok(v) => vals.push(v),
+                        Err(e) => return Err(e),
+                    }
+                }
+                // TODO: Check if arguments number matches
+                Ok(HirExpr::Call(HirFunction(function.to_string(), vals)))
+            }
             _ => Err(Error::TypeError(
                 "The type system does not support this type yet".into(),
             )),

@@ -18,8 +18,12 @@ pub enum HirExpr {
     IfElse(Box<HirExpr>, Vec<HirExpr>, Vec<HirExpr>, Type),
     IfStatement(Box<HirExpr>, Vec<HirExpr>, Type),
     Function(String, Vec<String>, HirBlock, Type),
+    Call(HirFunction),
     Nothing,
 }
+
+#[derive(Clone, Debug, PartialOrd, PartialEq)]
+pub struct HirFunction(pub String, pub Vec<HirExpr>);
 
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum Type {
