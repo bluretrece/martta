@@ -222,7 +222,6 @@ impl Interpreter {
                 }
                 Err(e) => Err(e),
             },
-            HirExpr::Nothing => Ok(Value::Nil),
             HirExpr::Var(name, _) => match self.env.borrow_mut().get_var(name.to_string()) {
                 Some(v) => Ok(v),
                 None => Err(Error::InvalidOperation(format!(
