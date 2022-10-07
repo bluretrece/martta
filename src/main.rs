@@ -43,8 +43,8 @@ fn main() {
         }
         let source: Prog = parser::ProgParser::new().parse(&line).unwrap();
         let mut tc = Typechecker::default();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value: HirNode = tc.typecheck(&source).unwrap();
+        let res = interpreter.evaluate(&tc_value).unwrap();
         println!("{}", res);
     }
 }

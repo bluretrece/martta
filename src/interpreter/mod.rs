@@ -28,7 +28,7 @@ impl Interpreter {
 
     pub fn eval_block(
         &mut self,
-        stmts: Vec<HirExpr>,
+        stmts: Vec<HirNode>,
         env: Rc<RefCell<Environment>>,
     ) -> Result<Value, Error> {
         let mut value: Value = Value::Nil;
@@ -37,7 +37,7 @@ impl Interpreter {
             self.env = env;
             for statement in stmts {
                 // self.stmt_eval?
-                value = self.expr_eval(&statement)?
+                value = self.evaluate(&statement)?
             }
             Ok(value)
         };
@@ -142,11 +142,11 @@ impl Interpreter {
             // },
         }
     }
-    pub fn expr_evals(&mut self, exprs: &Vec<HirExpr>) -> Result<Vec<Value>, Error> {
+    pub fn expr_evals(&mut self, exprs: &Vec<HirNode>) -> Result<Vec<Value>, Error> {
         let mut vals: Vec<Value> = Vec::new();
 
         for expr in exprs {
-            match self.expr_eval(expr) {
+            match self.evaluate(expr) {
                 Ok(v) => vals.push(v),
                 Err(e) => return Err(Error::InvalidOperation(e.to_string())),
             }
@@ -155,11 +155,66 @@ impl Interpreter {
         Ok(vals)
     }
 
+    pub fn evaluate(&mut self, expr: &HirNode) -> Result<Value, Error> {
+        println!("{:?}", expr);
+        match expr {
+            HirNode::HirStmt(s) => self.statement_eval(s),
+            HirNode::HirExpr(e) => self.expr_eval(e),
+        }
+    }
+
+    pub fn statement_eval(&mut self, expr: &HirStmt) -> Result<Value, Error> {
+        match expr {
+            HirStmt::Function(name, args, stmts, _) => {
+                let v = Value::Function(args.to_vec(), stmts.to_vec());
+
+                match self.env.borrow_mut().define(name.clone(), v) {
+                    Ok(_) => Ok(Value::Nil),
+                    Err(e) => Err(Error::InvalidOperation(e)),
+                }
+            }
+            HirStmt::IfStatement(cond, stmts, _) => match self.evaluate(cond) {
+                Ok(b) => match b {
+                    Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
+                    Value::Bool(false) => Ok(Value::Nil),
+                    _ => unreachable!(),
+                },
+                Err(_) => Err(Error::InvalidOperation(
+                    "Expression must be boolean".to_string(),
+                )),
+            },
+            HirStmt::IfElse(cond, stmts, estmt, _) => match self.evaluate(cond) {
+                Ok(b) => match b {
+                    Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
+                    Value::Bool(false) => self.eval_block(estmt.to_vec(), self.env.clone()),
+                    _ => unreachable!(),
+                },
+                Err(_) => Err(Error::InvalidOperation(
+                    "Expression must be boolean".to_string(),
+                )),
+            },
+            HirStmt::Return(e, _) => {
+                let value = match self.evaluate(e) {
+                    Ok(v) => v,
+                    Err(e) => return Err(e),
+                };
+                Ok(value)
+            }
+            HirStmt::Assign(name, rhs, _) => match self.evaluate(rhs) {
+                Ok(v) => {
+                    self.env.borrow_mut().define(name.to_string(), v)?;
+                    Ok(Value::Nil)
+                }
+                Err(e) => Err(e),
+            },
+        }
+    }
+
     pub fn expr_eval(&mut self, expr: &HirExpr) -> Result<Value, Error> {
         match expr {
             HirExpr::Binary(lhs, op, rhs, _) => {
-                let lhs = self.expr_eval(lhs)?;
-                let rhs = self.expr_eval(rhs)?;
+                let lhs = self.evaluate(lhs)?;
+                let rhs = self.evaluate(rhs)?;
 
                 match op {
                     Operator::Add => Ok(lhs + rhs),
@@ -187,48 +242,6 @@ impl Interpreter {
             HirExpr::Literal(Literal::Int(l), _) => Ok(Value::Int(*l)),
             HirExpr::Literal(Literal::Bool(b), _) => Ok(Value::Bool(*b)),
             HirExpr::Literal(Literal::String(s), _) => Ok(Value::Str(s.to_string())),
-            HirExpr::Function(name, args, stmts, _) => {
-                let v = Value::Function(args.to_vec(), stmts.to_vec());
-
-                match self.env.borrow_mut().define(name.clone(), v) {
-                    Ok(_) => Ok(Value::Nil),
-                    Err(e) => Err(Error::InvalidOperation(e)),
-                }
-            }
-            HirExpr::IfStatement(cond, stmts, _) => match self.expr_eval(cond) {
-                Ok(b) => match b {
-                    Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
-                    Value::Bool(false) => Ok(Value::Nil),
-                    _ => unreachable!(),
-                },
-                Err(_) => Err(Error::InvalidOperation(
-                    "Expression must be boolean".to_string(),
-                )),
-            },
-            HirExpr::IfElse(cond, stmts, estmt, _) => match self.expr_eval(cond) {
-                Ok(b) => match b {
-                    Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
-                    Value::Bool(false) => self.eval_block(estmt.to_vec(), self.env.clone()),
-                    _ => unreachable!(),
-                },
-                Err(_) => Err(Error::InvalidOperation(
-                    "Expression must be boolean".to_string(),
-                )),
-            },
-            HirExpr::Return(e, _) => {
-                let value = match self.expr_eval(e) {
-                    Ok(v) => v,
-                    Err(e) => return Err(e),
-                };
-                Ok(value)
-            }
-            HirExpr::Assign(name, rhs, _) => match self.expr_eval(rhs) {
-                Ok(v) => {
-                    self.env.borrow_mut().define(name.to_string(), v)?;
-                    Ok(Value::Nil)
-                }
-                Err(e) => Err(e),
-            },
             HirExpr::Var(name, _) => match self.env.borrow_mut().get_var(name.to_string()) {
                 Some(v) => Ok(v),
                 None => Err(Error::InvalidOperation(format!(
@@ -244,7 +257,7 @@ impl Interpreter {
                 let mut vals = Vec::new();
 
                 for arg in args {
-                    match self.expr_eval(arg) {
+                    match self.evaluate(arg) {
                         Ok(v) => vals.push(v),
                         Err(e) => return Err(e),
                     }
