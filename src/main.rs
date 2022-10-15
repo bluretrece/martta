@@ -29,7 +29,7 @@ pub fn std_print(vals: Vec<Value>) -> Result<Value, error::Error> {
 }
 
 fn main() {
-    let mut env = Environment::default();
+    let env = Environment::default();
     let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
     loop {
         print!("> ");

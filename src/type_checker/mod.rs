@@ -12,7 +12,6 @@ lalrpop_mod!(
 #[derive(Debug, Default, Clone)]
 pub struct Context {
     pub values: HashMap<String, Type>,
-    // pub enclosing: Option<Rc<RefCell<Environment>>>,
 }
 
 impl Context {
@@ -71,7 +70,6 @@ impl Typechecker {
             TypeAnnotation::Int => Type::Primitive(Primitive::Int),
             TypeAnnotation::Bool => Type::Primitive(Primitive::Bool),
             TypeAnnotation::Str => Type::Primitive(Primitive::Str),
-            _ => unimplemented!("String type annotations are not yet supported"),
         }
     }
 
@@ -103,7 +101,7 @@ impl Typechecker {
                 let expr_ = self.typecheck_expr(rhs)?;
                 let expected = self.annotation_type(annotation.clone());
 
-                self.ctx.define(name.to_string(), type_.clone());
+                self.ctx.define(name.to_string(), type_.clone())?;
 
                 println!("Context state: {:?}", self.ctx.values);
 
@@ -270,7 +268,7 @@ mod tests {
     fn types_mismatch() {
         let source: Prog = parser::ProgParser::new().parse("3 + true").unwrap();
         let mut type_checker = Typechecker::default();
-        let hir: Type = type_checker.typecheck(&source).unwrap().into();
+        let _hir: Type = type_checker.typecheck(&source).unwrap().into();
     }
 
     #[test]
