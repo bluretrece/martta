@@ -65,11 +65,11 @@ impl Typechecker {
         result
     }
 
-    pub fn annotation_type(&self, annotation: TypeAnnotation) -> Type {
+    pub fn annotation_type(&self, annotation: Ascription) -> Type {
         match annotation {
-            TypeAnnotation::Int => Type::Primitive(Primitive::Int),
-            TypeAnnotation::Bool => Type::Primitive(Primitive::Bool),
-            TypeAnnotation::Str => Type::Primitive(Primitive::Str),
+            Ascription::Int => Type::Primitive(Primitive::Int),
+            Ascription::Bool => Type::Primitive(Primitive::Bool),
+            Ascription::Str => Type::Primitive(Primitive::Str),
         }
     }
 

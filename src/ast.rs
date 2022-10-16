@@ -80,12 +80,12 @@ pub enum Literal {
 pub enum Stmt {
     Expr(Expr),
     Return(Expr),
-    Assign(String, Expr, TypeAnnotation),
+    Assign(String, Expr, Ascription),
     ReAssign(String, Expr),
     IfStatement(Expr, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
     IfElse(Expr, Vec<Stmt>, Vec<Stmt>),
-    Func(String, Vec<String>, Block, TypeAnnotation),
+    Func(String, Vec<String>, Block, Ascription),
     Class(String, Block),
 }
 
@@ -133,7 +133,7 @@ pub enum Operator {
 }
 
 #[derive(Clone, Debug, PartialOrd, PartialEq)]
-pub enum TypeAnnotation {
+pub enum Ascription {
     Int,
     Bool,
     Str,
