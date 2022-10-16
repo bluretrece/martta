@@ -236,10 +236,10 @@ impl Interpreter {
                     name
                 ))),
             },
-            // Expr::Function(args, stmts) => {
-            //     let f = Value::Function(args.to_vec(), stmts.to_vec());
-            //     Ok(f)
-            // }
+            HirExpr::Lambda(args, stmts, _) => {
+                let f = Value::Function(args.to_vec(), stmts.to_vec());
+                Ok(f)
+            }
             HirExpr::Call(HirFunction(function, args)) => {
                 let mut vals = Vec::new();
 

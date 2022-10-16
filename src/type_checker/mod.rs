@@ -65,8 +65,8 @@ impl Typechecker {
         result
     }
 
-    pub fn annotation_type(&self, annotation: Ascription) -> Type {
-        match annotation {
+    pub fn ascription_type(&self, ascription: Ascription) -> Type {
+        match ascription {
             Ascription::Int => Type::Primitive(Primitive::Int),
             Ascription::Bool => Type::Primitive(Primitive::Bool),
             Ascription::Str => Type::Primitive(Primitive::Str),
@@ -77,7 +77,7 @@ impl Typechecker {
         match expr {
             Stmt::Expr(x) => self.typecheck_expr(x),
             Stmt::Func(name, args, stmts, annotation) => {
-                let return_type = self.annotation_type(annotation.clone());
+                let return_type = self.ascription_type(annotation.clone());
                 let body_type: Type = self.eval_block(stmts.to_vec())?.into();
                 let block_value = self.eval_block(stmts.to_vec())?;
 
@@ -99,7 +99,7 @@ impl Typechecker {
             Stmt::Assign(name, rhs, annotation) => {
                 let type_: Type = self.typecheck_expr(rhs)?.into();
                 let expr_ = self.typecheck_expr(rhs)?;
-                let expected = self.annotation_type(annotation.clone());
+                let expected = self.ascription_type(annotation.clone());
 
                 self.ctx.define(name.to_string(), type_.clone())?;
 
@@ -175,6 +175,12 @@ impl Typechecker {
                 Literal::String(s.to_string()),
                 Type::Primitive(Primitive::Str),
             )),
+            Expr::Function(args, stmts) => {
+                let body = self.eval_block(stmts.clone())?;
+                let type_: Type = self.eval_block(stmts.to_vec())?.into();
+
+                Ok(HirExpr::Lambda(args.to_vec(), vec![body], type_))
+            }
             Expr::Binary(lhs, op, rhs) => {
                 let lhs_ = self.typecheck_expr(lhs)?;
                 let rhs_ = self.typecheck_expr(rhs)?;

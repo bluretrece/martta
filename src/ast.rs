@@ -17,6 +17,7 @@ pub enum HirExpr {
     IfElse(Box<HirExpr>, Vec<HirExpr>, Vec<HirExpr>, Type),
     IfStatement(Box<HirExpr>, Vec<HirExpr>, Type),
     Function(String, Vec<String>, HirBlock, Type),
+    Lambda(Vec<String>, Vec<HirExpr>, Type),
     Return(Box<HirExpr>, Type),
     Call(HirFunction),
     Nothing,
@@ -55,7 +56,7 @@ impl From<HirExpr> for Type {
             HirExpr::Function(_, _, _, Type::Primitive(Primitive::Int)) => {
                 Type::Primitive(Primitive::Int)
             }
-            // Not possible. Consider let bar: int = foo(); where foo returns an int.
+            // CHECK: Not possible. Consider let bar: int = foo(); where foo returns an int.
             HirExpr::Call(HirFunction(_, _expr)) => Type::Primitive(Primitive::Unit),
             HirExpr::Var(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
             HirExpr::Var(_, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
@@ -64,6 +65,7 @@ impl From<HirExpr> for Type {
                 Type::Primitive(Primitive::Bool)
             }
             HirExpr::Return(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
+            HirExpr::Lambda(_, _, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int), // Support for other types..
             _ => unimplemented!("{:?}", hir),
         }
     }

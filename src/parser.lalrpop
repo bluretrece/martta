@@ -9,7 +9,7 @@ pub Prog: Prog = {
 
 pub Stmt: Stmt = {
     <expr:Expr> ";"? => Stmt::Expr(expr),
-    "let" <name:Ident> ":"<t:Ascription> "=" <rhs:Expr> ";" => Stmt::Assign(name, rhs, t),
+    "let" <name:Ident> ":" <t:Ascription> "=" <rhs:Expr> ";"? => Stmt::Assign(name, rhs, t),
     <variable:Ident> "=" <rhs:Expr> ";" => Stmt::ReAssign(variable, rhs),
     "while" <cond:Expr> <stmts:Block> => Stmt::While(cond, stmts),
     "fn" <i:Ident> "::" <args:ParamList> "=>"<return_type:Ascription> <stmts:Block> => Stmt::Func(i, args, stmts, return_type),
@@ -61,14 +61,13 @@ pub Operator: Operator = {
     "==" => Operator::EqTo,
     "+=" => Operator::SumTo,
 }
-
 pub Expr_: Expr = {
     <v:IntegerLiteral> => Expr::Int(v),
     <s:StringLiteral> => Expr::Str(s),
     <f:Ident> "(" <args:ExprList> ")" => Expr::Call(Call::Function(Function {func: f, args: args})),
     <f:Ident> "()" => Expr::Call(Call::Class(Class {identifier: f})),
     <name:Ident> => Expr::Var(name),
-    "fn" "(" <args:ParamList> ")" "=>" <stmts:Block> => Expr::Function(args, stmts),
+    "|" <args:ParamList> "|" "=>" <stmts:Block> => Expr::Function(args, stmts),
     "true" => Expr::Bool(true),
     "false" => Expr::Bool(false),
     "[" <list:ExprList> "]" => Expr::List(list),
