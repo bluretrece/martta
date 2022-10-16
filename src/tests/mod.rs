@@ -2,14 +2,13 @@
 mod tests {
     use crate::*;
     #[test]
-    #[ignore = "Unimplemented."]
     fn anonymous_fn() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
         env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
-        let input = "let a = fn (n) => {
+        let input = "let a: int = | n | => {
             return n + 1
         };
 
