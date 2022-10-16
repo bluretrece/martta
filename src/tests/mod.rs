@@ -6,7 +6,7 @@ mod tests {
     fn anonymous_fn() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "let a = fn (n) => {
@@ -65,7 +65,7 @@ mod tests {
     fn re_assignment() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "
@@ -109,7 +109,7 @@ mod tests {
     fn int_printing() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "println(40 + 6);";
@@ -166,7 +166,7 @@ mod tests {
     fn if_should_not_evaluate() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if false || false {
@@ -183,7 +183,7 @@ mod tests {
     fn if_should_evaluate() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if true {
@@ -202,7 +202,7 @@ mod tests {
     fn else_evaluation() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(std_print))
+        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
             .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if 1 == 4 {

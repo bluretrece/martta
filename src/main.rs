@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::io::{self, Write};
 use std::rc::Rc;
 pub mod ast;
+pub mod builtin;
 pub mod environment;
 pub mod error;
 pub mod interpreter;
@@ -22,15 +23,10 @@ lalrpop_mod!(
     parser
 );
 
-pub fn std_print(vals: Vec<Value>) -> Result<Value, error::Error> {
-    println!("{:?}", &vals);
-
-    Ok(vals[0].clone())
-}
-
 fn main() {
     let env = Environment::default();
     let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
+    let mut tc = Typechecker::default();
     loop {
         print!("> ");
         io::stdout().flush().unwrap();
@@ -42,7 +38,6 @@ fn main() {
             break;
         }
         let source: Prog = parser::ProgParser::new().parse(&line).unwrap();
-        let mut tc = Typechecker::default();
         let tc_value: HirExpr = tc.typecheck(&source).unwrap();
         let res = interpreter.expr_eval(&tc_value).unwrap();
         println!("{}", res);
