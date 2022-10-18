@@ -27,19 +27,29 @@ fn main() {
     let env = Environment::default();
     let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
     let mut tc = Typechecker::default();
-    loop {
-        print!("> ");
-        io::stdout().flush().unwrap();
-        let mut line = String::new();
-        io::stdin()
-            .read_line(&mut line)
-            .expect("Unable to read line from the REPL");
-        if line.is_empty() {
-            break;
-        }
-        let source: Prog = parser::ProgParser::new().parse(&line).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
-        println!("{}", res);
-    }
+        let line = "let a: int = | n | => {
+            return n + 1
+        };
+
+        a(4);";
+    let source: Prog = parser::ProgParser::new().parse(&line).unwrap();
+    let tc_value: Vec<HirExpr> = tc.typecheck(&source).unwrap();
+    let res = interpreter.run(&tc_value).unwrap();
+    // let res = interpreter.expr_eval(&tc_value).unwrap();
+    println!("{}", res);
+    // loop {
+    //     print!("> ");
+    //     io::stdout().flush().unwrap();
+    //     let mut line = String::new();
+    //     io::stdin()
+    //         .read_line(&mut line)
+    //         .expect("Unable to read line from the REPL");
+    //     if line.is_empty() {
+    //         break;
+    //     }
+    //     let source: Prog = parser::ProgParser::new().parse(&line).unwrap();
+    //     let tc_value: HirExpr = tc.typecheck(&source).unwrap();
+    //     let res = interpreter.expr_eval(&tc_value).unwrap();
+    //     println!("{}", res);
+    // }
 }

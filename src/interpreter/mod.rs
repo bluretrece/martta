@@ -155,6 +155,16 @@ impl Interpreter {
         Ok(vals)
     }
 
+    pub fn run(&mut self, exprs: &Vec<HirExpr>) -> Result<Value, Error> {
+        let mut value = Value::Nil;
+
+        for expr in exprs {
+            value = self.expr_eval(expr)?;
+        }
+
+        Ok(value)
+    }
+
     pub fn expr_eval(&mut self, expr: &HirExpr) -> Result<Value, Error> {
         match expr {
             HirExpr::Binary(lhs, op, rhs, _) => {

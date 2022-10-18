@@ -14,14 +14,14 @@ mod tests {
 
         a(4);";
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(5));
     }
 
     #[test]
-    #[ignore = "Unstable. Same as above."]
+    #[ignore = "Unimplemented"]
     fn fibonacci() {
         let env = Environment::default();
         let mut tc = Typechecker::default();
@@ -37,8 +37,8 @@ mod tests {
         let n: int = 8;
         sum(n);";
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(21));
     }
@@ -53,14 +53,14 @@ mod tests {
         let input = "true && 2";
         let source = parser::ProgParser::new().parse(&input).unwrap();
 
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value= tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(1));
     }
 
     #[test]
-    #[ignore = "Throwing errors somehow"]
+    #[ignore = "Stopped working somehow."]
     fn re_assignment() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
@@ -73,8 +73,8 @@ mod tests {
             a = 4;
             println(a);";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(4));
     }
@@ -86,8 +86,8 @@ mod tests {
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "197";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(197));
     }
@@ -99,8 +99,8 @@ mod tests {
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "true";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
         assert_eq!(res, Value::Bool(true));
     }
 
@@ -113,22 +113,21 @@ mod tests {
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "println(40 + 6);";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(46));
     }
 
     #[test]
-    #[ignore = "Stopped working somehow."]
     fn assignment_and_println() {
         let env = Environment::default();
         let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "let x: int = 5;\n let a: int = x;\n a;";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(5));
     }
@@ -140,8 +139,8 @@ mod tests {
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "false";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Bool(false));
     }
@@ -155,8 +154,8 @@ mod tests {
         let input = "let b: bool = false && false;
             b";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Bool(false));
     }
@@ -173,8 +172,8 @@ mod tests {
 		    }";
 
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
         assert_eq!(res, Value::Nil);
     }
 
@@ -191,8 +190,8 @@ mod tests {
 			println(86);
 		     }";
         let source = parser::ProgParser::new().parse(input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(99));
     }
@@ -210,8 +209,8 @@ mod tests {
 			println(86);
 		     }";
         let source = parser::ProgParser::new().parse(&input).unwrap();
-        let tc_value: HirExpr = tc.typecheck(&source).unwrap();
-        let res = interpreter.expr_eval(&tc_value).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
+        let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(86));
     }
