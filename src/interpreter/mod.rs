@@ -142,7 +142,7 @@ impl Interpreter {
                 let f = Value::Function(args.to_vec(), stmts.to_vec());
                 Ok(f)
             }
-            HirExpr::Call(HirFunction(function, args)) => {
+            HirExpr::Call(HirFunction(function, args), _) => {
                 let mut vals = Vec::new();
 
                 for arg in args {

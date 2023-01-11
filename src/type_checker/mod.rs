@@ -76,10 +76,12 @@ impl Typechecker {
     pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<HirExpr, Error> {
         match expr {
             Stmt::Expr(x) => self.typecheck_expr(x),
-            Stmt::Func(name, args, stmts, annotation) => {
-                let return_type = self.ascription_type(annotation.clone());
+            Stmt::Func(name, args, stmts, ascription) => {
+                let return_type: Type = self.ascription_type(ascription.clone());
                 let body_type: Type = self.eval_block(stmts.to_vec())?.into();
                 let block_value = self.eval_block(stmts.to_vec())?;
+
+                self.ctx.define(name.to_string(), return_type.clone());
 
                 assert_eq!(
                     return_type, body_type,
@@ -211,6 +213,10 @@ impl Typechecker {
                 args,
             })) => {
                 let mut vals = Vec::new();
+                let type_: Type = match self.ctx.lookup(function.to_string()) {
+                    Some(t) => t,
+                    None => Type::Primitive(Primitive::Int),
+                };
 
                 for arg in args {
                     match self.typecheck_expr(arg) {
@@ -219,7 +225,10 @@ impl Typechecker {
                     }
                 }
                 // TODO: Check if arguments number matches
-                Ok(HirExpr::Call(HirFunction(function.to_string(), vals)))
+                Ok(HirExpr::Call(
+                    HirFunction(function.to_string(), vals),
+                    type_,
+                ))
             }
             _ => Err(Error::TypeError(
                 "The type system does not support this type yet".into(),
