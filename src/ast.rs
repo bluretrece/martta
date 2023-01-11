@@ -65,8 +65,10 @@ impl From<HirExpr> for Type {
                 Type::Primitive(Primitive::Bool)
             }
             HirExpr::Return(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
-            HirExpr::Lambda(_, _, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int), // Support for other types..
-            _ => unimplemented!("{:?}", hir),
+            HirExpr::Lambda(_, _, Type::Primitive(Primitive::Int)) => {
+                Type::Primitive(Primitive::Int)
+            } // Support for other types..
+            _ => unimplemented!("Pum {:?}", hir),
         }
     }
 }

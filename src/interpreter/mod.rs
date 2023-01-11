@@ -14,18 +14,6 @@ impl Interpreter {
         Self { env }
     }
 
-    pub fn eval(&mut self, program: &Prog) -> Result<Value, Error> {
-        let mut value = Value::Nil;
-        match program {
-            Prog::Body(stmts) => {
-                for stmt in stmts {
-                    value = self.stmt_eval(stmt)?;
-                }
-            }
-        }
-        Ok(value)
-    }
-
     pub fn eval_block(
         &mut self,
         stmts: Vec<HirExpr>,
@@ -36,7 +24,6 @@ impl Interpreter {
         let steps = || -> Result<Value, Error> {
             self.env = env;
             for statement in stmts {
-                // self.stmt_eval?
                 value = self.expr_eval(&statement)?
             }
             Ok(value)
@@ -47,101 +34,6 @@ impl Interpreter {
         result
     }
 
-    pub fn execute_block(
-        &mut self,
-        stmts: Vec<Stmt>,
-        env: Rc<RefCell<Environment>>,
-    ) -> Result<Value, Error> {
-        let mut v = Value::Nil;
-        let previous = Rc::clone(&self.env);
-        self.env = env;
-        for stmt in stmts {
-            v = self.stmt_eval(&stmt)?
-        }
-
-        self.env = previous;
-        Ok(v)
-    }
-
-    pub fn stmt_eval(&mut self, expr: &Stmt) -> Result<Value, Error> {
-        match expr {
-            _ => todo!(),
-            // Stmt::Expr(e) => self.expr_eval(e),
-            // Stmt::Return(e) => {
-            //     let value = match self.expr_eval(e) {
-            //         Ok(v) => v,
-            //         Err(e) => return Err(e),
-            //     };
-            //     Ok(value)
-            // }
-
-            // Stmt::Func(name, args, stmts) => {
-            //     let v = Value::Function(args.to_vec(), stmts.to_vec());
-
-            //     match self.env.borrow_mut().define(name.clone(), v) {
-            //         Ok(_) => Ok(Value::Nil),
-            //         Err(e) => Err(Error::InvalidOperation(e)),
-            //     }
-            // }
-
-            // Stmt::Assign(name, rhs) => match self.expr_eval(rhs) {
-            //     Ok(v) => {
-            //         self.env.borrow_mut().define(name.to_string(), v)?;
-            //         Ok(Value::Nil)
-            //     }
-            //     Err(e) => Err(e),
-            // },
-
-            // Stmt::ReAssign(ref var, rhs) => match self.expr_eval(rhs) {
-            //     Ok(value) => {
-            //         if let Some(x) = self.env.borrow_mut().vals.get_mut(var) {
-            //             *x = value;
-            //         }
-            //         Ok(Value::Nil)
-            //     }
-            //     Err(e) => Err(e),
-            // },
-
-            // Stmt::While(cond, stmts) => loop {
-            //     let conditional = match self.expr_eval(cond) {
-            //         Ok(b) => match b {
-            //             Value::Bool(true) => true,
-            //             Value::Bool(false) => false,
-            //             _ => unimplemented!(),
-            //         },
-            //         Err(_) => unimplemented!(),
-            //     };
-
-            //     if !conditional {
-            //         break Ok(Value::Nil);
-            //     }
-            //     if let Err(e) = self.eval_block(stmts.to_vec(), self.env.clone()) {
-            //         return Err(e);
-            //     }
-            // },
-
-            // Stmt::IfStatement(cond, stmts) => match self.expr_eval(cond) {
-            //     Ok(b) => match b {
-            //         Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
-            //         Value::Bool(false) => Ok(Value::Nil),
-            //         _ => unreachable!(),
-            //     },
-            //     Err(_) => Err(Error::InvalidOperation(
-            //         "Expression must be boolean".to_string(),
-            //     )),
-            // },
-            // Stmt::IfElse(cond, stmts, estmt) => match self.expr_eval(cond) {
-            //     Ok(b) => match b {
-            //         Value::Bool(true) => self.eval_block(stmts.to_vec(), self.env.clone()),
-            //         Value::Bool(false) => self.eval_block(estmt.to_vec(), self.env.clone()),
-            //         _ => unreachable!(),
-            //     },
-            //     Err(_) => Err(Error::InvalidOperation(
-            //         "Expression must be boolean".to_string(),
-            //     )),
-            // },
-        }
-    }
     pub fn expr_evals(&mut self, exprs: &Vec<HirExpr>) -> Result<Vec<Value>, Error> {
         let mut vals: Vec<Value> = Vec::new();
 
@@ -289,14 +181,6 @@ impl Interpreter {
                 }
             }
             _ => unimplemented!(),
-            // Expr::List(list) => {
-            //     let values = match self.expr_evals(list) {
-            //         Ok(v) => v,
-            //         Err(e) => return Err(e),
-            //     };
-
-            //     Ok(Value::List(values))
-            // }
         }
     }
 }

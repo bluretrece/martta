@@ -5,8 +5,11 @@ mod tests {
     fn anonymous_fn() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
-            .unwrap();
+        env.define(
+            "println".to_string(),
+            Value::BuiltinFunction(builtin::std_print),
+        )
+        .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "let a: int = | n | => {
             return n + 1
@@ -21,7 +24,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "Unimplemented"]
+    // #[ignore = "Unimplemented"]
     fn fibonacci() {
         let env = Environment::default();
         let mut tc = Typechecker::default();
@@ -53,7 +56,7 @@ mod tests {
         let input = "true && 2";
         let source = parser::ProgParser::new().parse(&input).unwrap();
 
-        let tc_value= tc.typecheck(&source).unwrap();
+        let tc_value = tc.typecheck(&source).unwrap();
         let res = interpreter.run(&tc_value).unwrap();
 
         assert_eq!(res, Value::Int(1));
@@ -64,8 +67,11 @@ mod tests {
     fn re_assignment() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
-            .unwrap();
+        env.define(
+            "println".to_string(),
+            Value::BuiltinFunction(builtin::std_print),
+        )
+        .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "
             let a = 1;
@@ -108,8 +114,11 @@ mod tests {
     fn int_printing() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
-            .unwrap();
+        env.define(
+            "println".to_string(),
+            Value::BuiltinFunction(builtin::std_print),
+        )
+        .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "println(40 + 6);";
         let source = parser::ProgParser::new().parse(input).unwrap();
@@ -164,8 +173,11 @@ mod tests {
     fn if_should_not_evaluate() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
-            .unwrap();
+        env.define(
+            "println".to_string(),
+            Value::BuiltinFunction(builtin::std_print),
+        )
+        .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if false || false {
 			99;
@@ -181,8 +193,11 @@ mod tests {
     fn if_should_evaluate() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
-            .unwrap();
+        env.define(
+            "println".to_string(),
+            Value::BuiltinFunction(builtin::std_print),
+        )
+        .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if true {
 			println(99);
@@ -200,8 +215,11 @@ mod tests {
     fn else_evaluation() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define("println".to_string(), Value::BuiltinFunction(builtin::std_print))
-            .unwrap();
+        env.define(
+            "println".to_string(),
+            Value::BuiltinFunction(builtin::std_print),
+        )
+        .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if 1 == 4 {
 			println(99);
