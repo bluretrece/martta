@@ -89,8 +89,6 @@ impl Typechecker {
                     return_type, body_type
                 );
 
-                println!("Context: {:?} ", self.ctx.values);
-
                 Ok(HirExpr::Function(
                     name.to_owned(),
                     args.to_vec(),
@@ -104,8 +102,6 @@ impl Typechecker {
                 let expected = self.ascription_type(annotation.clone());
 
                 self.ctx.define(name.to_string(), type_.clone())?;
-
-                println!("Context state: {:?}", self.ctx.values);
 
                 assert_eq!(
                     type_, expected,

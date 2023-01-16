@@ -26,7 +26,7 @@ impl Repl {
             std::io::stdin()
                 .read_line(&mut line)
                 .expect("Unable to read line from the REPL");
-            if line.is_empty() {
+            if line.is_empty() || line.contains(":q") {
                 break;
             }
             let source: Prog = parser::ProgParser::new().parse(&line).unwrap();
