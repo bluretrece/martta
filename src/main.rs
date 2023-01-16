@@ -1,3 +1,4 @@
+use clap::Parser;
 use std::cell::RefCell;
 use std::rc::Rc;
 pub mod ast;
@@ -24,8 +25,23 @@ lalrpop_mod!(
     parser
 );
 
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Command {
+    #[arg(short = 'r', value_name = "run REPL")]
+    repl: bool,
+
+    #[arg(short = 'f', value_name = "open from file")]
+    file: Option<String>,
+}
+
 fn main() {
-    let re = Repl::run();
+    let args = Command::parse();
+
+    match args.repl {
+        true => Repl::run(),
+        _ => println!("file handler"),
+    }
     // let env = Environment::default();
     // let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
     // let mut tc = Typechecker::default();
