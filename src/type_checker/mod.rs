@@ -70,6 +70,13 @@ impl Typechecker {
             Ascription::Int => Type::Primitive(Primitive::Int),
             Ascription::Bool => Type::Primitive(Primitive::Bool),
             Ascription::Str => Type::Primitive(Primitive::Str),
+            Ascription::List(a) => match *a {
+                Ascription::Int => Type::Primitive(Primitive::List(Box::new(Primitive::Int))),
+                Ascription::Bool => Type::Primitive(Primitive::List(Box::new(Primitive::Int))),
+                Ascription::Str => Type::Primitive(Primitive::List(Box::new(Primitive::Int))),
+                // Recursive primitive not allowed for now
+                _ => unreachable!(),
+            },
         }
     }
 
@@ -178,6 +185,28 @@ impl Typechecker {
                 let type_: Type = self.eval_block(stmts.to_vec())?.into();
 
                 Ok(HirExpr::Lambda(args.to_vec(), vec![body], type_))
+            }
+            Expr::List(elements) => {
+                let mut typechecked_expressions: Vec<Type> = Vec::new();
+                let mut parsed_exprs = Vec::new();
+
+                for el in elements {
+                    typechecked_expressions.push(self.typecheck_expr(el)?.into());
+                    parsed_exprs.push(self.typecheck_expr(el)?);
+                }
+
+                let type_ = || -> Type {
+                    let head = typechecked_expressions.first().unwrap();
+                    typechecked_expressions
+                        .iter()
+                        .all(|t| t == head)
+                        .then(|| head)
+                        .clone()
+                        .unwrap()
+                        .clone()
+                };
+
+                Ok(HirExpr::List(parsed_exprs, type_()))
             }
             Expr::Binary(lhs, op, rhs) => {
                 let lhs_ = self.typecheck_expr(lhs)?;

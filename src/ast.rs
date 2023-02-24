@@ -20,6 +20,7 @@ pub enum HirExpr {
     Lambda(Vec<String>, Vec<HirExpr>, Type),
     Return(Box<HirExpr>, Type),
     Call(HirFunction, Type),
+    List(Vec<HirExpr>, Type),
     Nothing,
 }
 
@@ -37,11 +38,15 @@ pub enum Primitive {
     Bool,
     Str,
     Unit,
+    List(Box<Primitive>),
 }
 
 impl From<HirExpr> for Type {
     fn from(hir: HirExpr) -> Self {
         match hir {
+            HirExpr::List(_, Type::Primitive(Primitive::Int)) => {
+                Type::Primitive(Primitive::List(Box::new(Primitive::Int)))
+            }
             HirExpr::Literal(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
             HirExpr::Literal(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
             HirExpr::Literal(_, Type::Primitive(Primitive::Bool)) => {
@@ -72,6 +77,7 @@ impl From<HirExpr> for Type {
             HirExpr::Lambda(_, _, Type::Primitive(Primitive::Int)) => {
                 Type::Primitive(Primitive::Int)
             }
+
             _ => unimplemented!("{:?}", hir),
         }
     }
@@ -145,6 +151,7 @@ pub enum Ascription {
     Int,
     Bool,
     Str,
+    List(Box<Ascription>),
 }
 
 #[cfg(test)]

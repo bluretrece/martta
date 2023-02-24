@@ -142,6 +142,20 @@ impl Interpreter {
                 let f = Value::Function(args.to_vec(), stmts.to_vec());
                 Ok(f)
             }
+            HirExpr::List(elems, _) => {
+                let mut vals = Vec::new();
+
+                for el in elems {
+                    match self.expr_eval(el) {
+                        Ok(v) => vals.push(v),
+                        Err(e) => return Err(e),
+                    }
+                }
+
+                let list = Value::List(vals);
+
+                Ok(list)
+            }
             HirExpr::Call(HirFunction(function, args), _) => {
                 let mut vals = Vec::new();
 

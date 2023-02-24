@@ -21,7 +21,8 @@ pub Stmt: Stmt = {
 pub Ascription: Ascription = {
     "int" => Ascription::Int,
     "bool" => Ascription::Bool,
-    "string" => Ascription::Str
+    "string" => Ascription::Str,
+    "[int]" => Ascription::List(Box::new(Ascription::Int))
 }
 
 pub ParamList: Vec<String> = {
