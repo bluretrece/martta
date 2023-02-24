@@ -9,7 +9,6 @@ pub enum Value {
     List(Vec<Value>),
     BuiltinFunction(fn(Vec<Value>) -> Result<Value, Error>),
     Function(Vec<String>, Vec<HirExpr>),
-    // Function(Vec<String>, Vec<Stmt>),
     Nil,
 }
 
