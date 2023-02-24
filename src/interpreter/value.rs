@@ -19,14 +19,16 @@ impl std::fmt::Display for Value {
             Self::Int(x) => write!(f, "{}", *x),
             Self::Bool(b) => write!(f, "{}", *b),
             Self::List(list) => {
+                let mut dummy: String = String::from("[");
                 let mut values = Vec::new();
                 for v in list {
+                    dummy.push_str(v.to_string().as_str());
+                    dummy.push_str(",");
                     values.push(v);
                 }
-
-                for el in values.iter() {
-                    write!(f, "{} ", el);
-                }
+                dummy.pop();
+                dummy.push_str("]");
+                write!(f, "{}", dummy);
                 Ok(())
             }
             Self::Nil => write!(f, "Nil"),
