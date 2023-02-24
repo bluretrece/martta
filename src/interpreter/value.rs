@@ -25,7 +25,7 @@ impl std::fmt::Display for Value {
                 }
 
                 for el in values.iter() {
-                    write!(f, "{} ", el)?;
+                    write!(f, "{} ", el);
                 }
                 Ok(())
             }

@@ -20,7 +20,7 @@ impl Repl {
         let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         loop {
-            print!("> ");
+            print!(":> ");
             std::io::stdout().flush().unwrap();
             let mut line = String::new();
             std::io::stdin()

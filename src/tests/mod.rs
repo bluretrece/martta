@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::*;
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
     #[test]
     fn anonymous_fn() {
         let mut env = Environment::default();
