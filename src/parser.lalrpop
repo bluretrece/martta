@@ -22,7 +22,8 @@ pub Ascription: Ascription = {
     "int" => Ascription::Int,
     "bool" => Ascription::Bool,
     "string" => Ascription::Str,
-    "[int]" => Ascription::List(Box::new(Ascription::Int))
+    "[int]" => Ascription::List(Box::new(Ascription::Int)),
+    "[bool]" => Ascription::List(Box::new(Ascription::Bool))
 }
 
 pub ParamList: Vec<String> = {

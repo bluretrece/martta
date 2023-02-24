@@ -11,7 +11,6 @@ use ast::*;
 use environment::*;
 use interpreter::*;
 use repl::*;
-use type_checker::*;
 
 #[macro_use]
 extern crate lalrpop_util;

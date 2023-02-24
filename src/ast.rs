@@ -47,6 +47,9 @@ impl From<HirExpr> for Type {
             HirExpr::List(_, Type::Primitive(Primitive::Int)) => {
                 Type::Primitive(Primitive::List(Box::new(Primitive::Int)))
             }
+            HirExpr::List(_, Type::Primitive(Primitive::Bool)) => {
+                Type::Primitive(Primitive::List(Box::new(Primitive::Bool)))
+            }
             HirExpr::Literal(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
             HirExpr::Literal(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
             HirExpr::Literal(_, Type::Primitive(Primitive::Bool)) => {

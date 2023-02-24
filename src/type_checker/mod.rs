@@ -72,8 +72,8 @@ impl Typechecker {
             Ascription::Str => Type::Primitive(Primitive::Str),
             Ascription::List(a) => match *a {
                 Ascription::Int => Type::Primitive(Primitive::List(Box::new(Primitive::Int))),
-                Ascription::Bool => Type::Primitive(Primitive::List(Box::new(Primitive::Int))),
-                Ascription::Str => Type::Primitive(Primitive::List(Box::new(Primitive::Int))),
+                Ascription::Bool => Type::Primitive(Primitive::List(Box::new(Primitive::Bool))),
+                Ascription::Str => Type::Primitive(Primitive::List(Box::new(Primitive::Str))),
                 // Recursive primitive not allowed for now
                 _ => unreachable!(),
             },
