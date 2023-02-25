@@ -1,10 +1,12 @@
 use crate::ast::*;
+use crate::builtin::*;
 use crate::environment::*;
 use crate::interpreter::Interpreter;
 use crate::type_checker::*;
 use std::cell::RefCell;
 use std::io::Write;
 use std::rc::Rc;
+
 lalrpop_mod!(
     #[allow(clippy::all)]
     #[allow(clippy::pedantic)]
@@ -16,8 +18,12 @@ pub struct Repl {}
 
 impl Repl {
     pub fn run() {
-        let env = Environment::default();
+        let mut env = Environment::default();
         let mut tc = Typechecker::default();
+        env.define(
+            "reduce".to_string(),
+            crate::value::Value::BuiltinFunction(reduce),
+        );
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         loop {
             print!(":> ");
