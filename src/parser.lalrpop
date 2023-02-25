@@ -67,6 +67,7 @@ pub Expr_: Expr = {
     <v:IntegerLiteral> => Expr::Int(v),
     <s:StringLiteral> => Expr::Str(s),
     <f:Ident> "(" <args:ExprList> ")" => Expr::Call(Call::Function(Function {func: f, args: args})),
+    <i:"reduce"> <list:Expr_> => Expr::Call(Call::Function(Function {func: i.to_string(), args: vec![ list ]})),
     <name:Ident> => Expr::Var(name),
     "|" <args:ParamList> "|" "=>" <stmts:Block> => Expr::Function(args, stmts),
     "true" => Expr::Bool(true),
