@@ -1,12 +1,29 @@
+use crate::builtin::*;
 use crate::value::Value;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct Environment {
     pub vals: HashMap<String, Value>,
     pub enclosing: Option<Rc<RefCell<Environment>>>,
+}
+
+impl Default for Environment {
+    fn default() -> Self {
+        let mut env = Self {
+            vals: HashMap::new(),
+            enclosing: None,
+        };
+
+        env.define(
+            "reduce".to_string(),
+            crate::value::Value::BuiltinFunction(reduce),
+        );
+
+        env
+    }
 }
 
 impl Environment {

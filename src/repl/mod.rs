@@ -1,5 +1,4 @@
 use crate::ast::*;
-use crate::builtin::*;
 use crate::environment::*;
 use crate::interpreter::Interpreter;
 use crate::type_checker::*;
@@ -20,10 +19,6 @@ impl Repl {
     pub fn run() {
         let mut env = Environment::default();
         let mut tc = Typechecker::default();
-        env.define(
-            "reduce".to_string(),
-            crate::value::Value::BuiltinFunction(reduce),
-        );
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         loop {
             print!(":> ");

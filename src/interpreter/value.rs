@@ -27,7 +27,7 @@ impl std::fmt::Display for Value {
                 }
                 dummy.pop();
                 dummy.push_str("]");
-                write!(f, "{}", dummy);
+                write!(f, "{}", dummy)?;
                 Ok(())
             }
             Self::Nil => write!(f, "Nil"),
