@@ -179,14 +179,26 @@ impl Interpreter {
                 match function_defined {
                     Value::BuiltinFunction(f) => f(vals),
                     Value::Function(params, stmts) => {
-                        let environment =
-                            Rc::new(RefCell::new(Environment::with_ref(self.env.clone())));
-                        for (param, argument) in params.iter().zip(vals.iter()) {
-                            environment
-                                .borrow_mut()
-                                .define(param.clone(), argument.clone())?;
+                        let arity = params.len() == args.len();
+
+                        match arity {
+                            true => {
+                                let environment =
+                                    Rc::new(RefCell::new(Environment::with_ref(self.env.clone())));
+                                for (param, argument) in params.iter().zip(vals.iter()) {
+                                    environment
+                                        .borrow_mut()
+                                        .define(param.clone(), argument.clone())?;
+                                }
+                                self.eval_block(stmts, environment)
+                            }
+                            _ => Err(Error::InvalidOperation(format!(
+                                "function '{}' accepts {} parameters but {} were provided.",
+                                function,
+                                params.len(),
+                                args.len()
+                            ))),
                         }
-                        self.eval_block(stmts, environment)
                     }
                     _ => Err(Error::InvalidOperation(format!(
                         "'{}' isn't a function",
