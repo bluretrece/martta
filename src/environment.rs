@@ -20,7 +20,8 @@ impl Default for Environment {
         env.define(
             "reduce".to_string(),
             crate::value::Value::BuiltinFunction(reduce),
-        );
+        )
+        .unwrap_or_else(|_| ());
 
         env
     }

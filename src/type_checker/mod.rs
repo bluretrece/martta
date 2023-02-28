@@ -88,7 +88,9 @@ impl Typechecker {
                 let body_type: Type = self.eval_block(stmts.to_vec())?.into();
                 let block_value = self.eval_block(stmts.to_vec())?;
 
-                self.ctx.define(name.to_string(), return_type.clone());
+                self.ctx
+                    .define(name.to_string(), return_type.clone())
+                    .unwrap_or_else(|_| ());
 
                 assert_eq!(
                     return_type, body_type,
