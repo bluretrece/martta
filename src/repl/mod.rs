@@ -1,4 +1,3 @@
-use crate::ast::*;
 use crate::environment::*;
 use crate::interpreter::Interpreter;
 use crate::type_checker::*;
@@ -17,7 +16,7 @@ pub struct Repl {}
 
 impl Repl {
     pub fn run() {
-        let mut env = Environment::default();
+        let env = Environment::default();
         let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         loop {
@@ -30,10 +29,16 @@ impl Repl {
             if line.is_empty() || line.contains(":q") {
                 break;
             }
-            let source: Prog = parser::ProgParser::new().parse(&line).unwrap();
-            let tc_value: Vec<HirExpr> = tc.typecheck(&source).unwrap();
-            let res = interpreter.run(&tc_value).unwrap();
-            println!("{}", res);
+            match parser::ProgParser::new().parse(&line) {
+                Ok(ast) => match tc.typecheck(&ast) {
+                    Ok(val) => match interpreter.run(&val) {
+                        Ok(res) => println!("{}", res),
+                        Err(e) => println!("{}", e),
+                    },
+                    Err(tc_error) => println!("{}", tc_error),
+                },
+                Err(parse_error) => println!("{}", parse_error),
+            }
         }
     }
 }
