@@ -28,7 +28,6 @@ mod tests {
     }
 
     #[test]
-    // #[ignore = "Unimplemented"]
     fn fibonacci() {
         let env = Environment::default();
         let mut tc = Typechecker::default();

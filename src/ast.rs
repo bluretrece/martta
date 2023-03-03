@@ -44,43 +44,23 @@ pub enum Primitive {
 impl From<HirExpr> for Type {
     fn from(hir: HirExpr) -> Self {
         match hir {
-            HirExpr::List(_, Type::Primitive(Primitive::Int)) => {
-                Type::Primitive(Primitive::List(Box::new(Primitive::Int)))
-            }
-            HirExpr::List(_, Type::Primitive(Primitive::Bool)) => {
-                Type::Primitive(Primitive::List(Box::new(Primitive::Bool)))
-            }
+            HirExpr::List(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::List(Box::new(Primitive::Int))),
+            HirExpr::List(_, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::List(Box::new(Primitive::Bool))),
             HirExpr::Literal(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
             HirExpr::Literal(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
-            HirExpr::Literal(_, Type::Primitive(Primitive::Bool)) => {
-                Type::Primitive(Primitive::Bool)
-            }
-            HirExpr::Binary(_, _, _, Type::Primitive(Primitive::Int)) => {
-                Type::Primitive(Primitive::Int)
-            }
-            HirExpr::Binary(_, _, _, Type::Primitive(Primitive::Bool)) => {
-                Type::Primitive(Primitive::Bool)
-            }
-            HirExpr::Function(_, _, _, Type::Primitive(Primitive::Int)) => {
-                Type::Primitive(Primitive::Int)
-            }
-            HirExpr::Call(HirFunction(_, _), Type::Primitive(Primitive::Int)) => {
-                Type::Primitive(Primitive::Int)
-            }
-            HirExpr::Call(HirFunction(_, _), Type::Primitive(Primitive::Bool)) => {
-                Type::Primitive(Primitive::Bool)
-            }
+            HirExpr::Literal(_, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
+            HirExpr::Binary(_, _, _, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
+            HirExpr::Binary(_, _, _, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
+            HirExpr::Function(_, _, _, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
+            HirExpr::Call(HirFunction(_, _), Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
+            HirExpr::Call(HirFunction(_, _), Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
             HirExpr::Var(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
             HirExpr::Var(_, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
             HirExpr::Return(_, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
-            HirExpr::Return(_, Type::Primitive(Primitive::Bool)) => {
-                Type::Primitive(Primitive::Bool)
-            }
+            HirExpr::Return(_, Type::Primitive(Primitive::Bool)) => Type::Primitive(Primitive::Bool),
             HirExpr::Return(_, Type::Primitive(Primitive::Str)) => Type::Primitive(Primitive::Str),
-            HirExpr::Lambda(_, _, Type::Primitive(Primitive::Int)) => {
-                Type::Primitive(Primitive::Int)
-            }
-
+            HirExpr::Lambda(_, _, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
+            HirExpr::IfElse(_, _, _, Type::Primitive(Primitive::Int)) => Type::Primitive(Primitive::Int),
             _ => unimplemented!("{:?}", hir),
         }
     }
