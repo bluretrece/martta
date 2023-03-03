@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use crate::type_checker::*;
     use crate::*;
     use std::cell::RefCell;
     use std::rc::Rc;
@@ -32,7 +33,7 @@ mod tests {
         let env = Environment::default();
         let mut tc = Typechecker::default();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
-        let input = "fn sum :: n => int {
+        let input = "fn sum n => int {
             if n < 2 {
                 return n;
             } else {
@@ -183,8 +184,8 @@ mod tests {
         .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if false || false {
-			99;
-		    }";
+    99;
+    }";
 
         let source = parser::ProgParser::new().parse(input).unwrap();
         let tc_value = tc.typecheck(&source).unwrap();
@@ -203,10 +204,10 @@ mod tests {
         .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if true {
-			println(99);
-		     } else {
-			println(86);
-		     }";
+    println(99);
+    } else {
+    println(86);
+    }";
         let source = parser::ProgParser::new().parse(input).unwrap();
         let tc_value = tc.typecheck(&source).unwrap();
         let res = interpreter.run(&tc_value).unwrap();
@@ -225,10 +226,10 @@ mod tests {
         .unwrap();
         let mut interpreter = Interpreter::new(Rc::new(RefCell::new(env)));
         let input = "if 1 == 4 {
-			println(99);
-		     } else {
-			println(86);
-		     }";
+    println(99);
+    } else {
+    println(86);
+    }";
         let source = parser::ProgParser::new().parse(&input).unwrap();
         let tc_value = tc.typecheck(&source).unwrap();
         let res = interpreter.run(&tc_value).unwrap();
